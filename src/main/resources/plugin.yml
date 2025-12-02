@@ -4,3 +4,24 @@ main: me.massacring.massiveCombat.MassiveCombat
 api-version: '1.21'
 authors: [ massacring ]
 description: "A minecraft plugin that adds a few combat improvements."
+permissions:
+  massivecombat.ability.starter.*:
+    description: Allows player to use all abilities.
+    default: true
+    children:
+      massivecombat.ability.starter.double_jump: true
+      massivecombat.ability.starter.wall_jump: true
+      massivecombat.ability.starter.slide: true
+      massivecombat.ability.starter.deflect: true
+  massivecombat.ability.starter.double_jump:
+    description: Allows player to double jump.
+    default: false
+  massivecombat.ability.starter.wall_jump:
+    description: Allows player to wall jump.
+    default: false
+  massivecombat.ability.starter.slide:
+    description: Allows player to slide.
+    default: false
+  massivecombat.ability.starter.deflect:
+    description: Allows player to deflect projectiles.
+    default: false

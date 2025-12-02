@@ -1,0 +1,89 @@
+## Generic
+safe_fall_distance: 6.0
+disable_invulnerability_frames: true
+
+## Movement
+# Double Jump
+double_jump_multiple: 0.5
+double_jump_setY: 0.5
+double_jump_sound: "ENTITY_BREEZE_IDLE_AIR"
+double_jump_use_cooldown: false
+double_jump_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
+
+# Wall Jump
+wall_jump_multiple: 0.35
+wall_jump_setY: 0.55
+wall_jump_sound: "ENTITY_BREEZE_JUMP"
+wall_jump_use_cooldown: false
+wall_jump_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
+wall_jump_num_of_jumps: 2 # How many times you can wall jump in a row
+wall_jump_min_distance: 3 # The minimum distance you need to move on the x and z axis to wall jump again.
+
+# Sliding
+slide_multiple: 0.6
+slide_sound: "ITEM_BRUSH_BRUSHING_GRAVEL"
+slide_use_cooldown: false
+slide_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
+slide_craw_duration: 10 # How many ticks you should be in crawl mode after slide is activated.
+
+## Combat
+# Health Effects
+slowness_ticks_per_block_fallen: 200 # Gives 10 seconds of slowness for every block of fall damage.
+low_health_effects:
+  1:
+    adds:
+      WEAKNESS: 0
+      MINING_FATIGUE: 0
+      NAUSEA: 0
+      BLINDNESS: 0
+  2:
+    copy: 1
+  3:
+    copy: 1
+  4:
+    copy: 1
+  5:
+    adds:
+      WEAKNESS: 0
+      MINING_FATIGUE: 0
+      NAUSEA: 0
+      DARKNESS: 0
+  6:
+    copy: 5
+  7:
+    adds:
+      WEAKNESS: 0
+      MINING_FATIGUE: 0
+      NAUSEA: 0
+  8:
+    copy: 7
+  9:
+    adds:
+      WEAKNESS: 0
+      MINING_FATIGUE: 0
+  10:
+    copy: 9
+  11:
+    copy: 9
+  12:
+    adds:
+      WEAKNESS: 0
+  13:
+    copy: 12
+  14:
+    copy: 12
+LHE_duration: 200 # Duration of low health effects in ticks.
+
+# Deflection
+deflection_use_hold_frequency: 10 # The delay of ticks between checking if the player is still holding right-click.
+deflection_whitelist_tags: # the item in your offhand needs one of these tags to enable deflection.
+  - "deflecting"
+deflection_minimum_angle: 8.0
+deflection_sound: "ENTITY_BREEZE_DEFLECT"
+deflection_use_cooldown: false
+deflection_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
+
+# Backstab
+backstab_damage: 3.0 # Bonus damage to be applied when attacking an entity facing away from you.
+backstab_angle: 30.0 # How many degrees of leeway the entity you're stabbing from behind has in order to count as being "behind"
+backstab_sound: "ITEM_WOLF_ARMOR_DAMAGE"
