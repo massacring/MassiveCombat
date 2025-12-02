@@ -1,0 +1,6 @@
+name: MassiveCombat
+version: '1.0-SNAPSHOT'
+main: me.massacring.massiveCombat.MassiveCombat
+api-version: '1.21'
+authors: [ massacring ]
+description: "A minecraft plugin that adds a few combat improvements."
