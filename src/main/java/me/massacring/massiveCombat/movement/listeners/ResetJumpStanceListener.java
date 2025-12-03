@@ -34,17 +34,17 @@ public class ResetJumpStanceListener implements Listener {
         if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) return;
 
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        if (!playerNBT.has(new NamespacedKey(plugin, "massivecombat.double_jump.ready"))) player.setAllowFlight(false);
+        if (!playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.double_jump.ready"))) player.setAllowFlight(false);
 
         if (player.getAllowFlight()) return;
 
         boolean onGround = isPlayerOnGround(player);
         if (onGround) {
             doubleJumpCheck(player);
-            playerNBT.remove(new NamespacedKey(plugin, "massivecombat.wall_jump.last_coords"));
-            playerNBT.remove(new NamespacedKey(plugin, "massivecombat.wall_jump.jumps"));
+            playerNBT.remove(new NamespacedKey(this.plugin, "massivecombat.wall_jump.last_coords"));
+            playerNBT.remove(new NamespacedKey(this.plugin, "massivecombat.wall_jump.jumps"));
             return;
-        } else playerNBT.remove(new NamespacedKey(plugin, "massivecombat.double_jump.ready"));
+        } else playerNBT.remove(new NamespacedKey(this.plugin, "massivecombat.double_jump.ready"));
         Block playerBlock = player.getLocation().getBlock();
         if (playerBlock.getType() != Material.AIR ||
                 playerBlock.getRelative(BlockFace.NORTH).getType() != Material.AIR ||
@@ -60,26 +60,26 @@ public class ResetJumpStanceListener implements Listener {
 
         // remove double jump cooldown tag
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        Long cooldownTime = playerNBT.get(new NamespacedKey(plugin, "massivecombat.double_jump.cooldown"), PersistentDataType.LONG);
+        Long cooldownTime = playerNBT.get(new NamespacedKey(this.plugin, "massivecombat.double_jump.cooldown"), PersistentDataType.LONG);
         if (cooldownTime != null && System.currentTimeMillis() >= cooldownTime)
-            playerNBT.remove(new NamespacedKey(plugin, "massivecombat.double_jump.cooldown"));
+            playerNBT.remove(new NamespacedKey(this.plugin, "massivecombat.double_jump.cooldown"));
 
         // return if player has the double jump cooldown tag
-        if (playerNBT.has(new NamespacedKey(plugin, "massivecombat.double_jump.cooldown"))) return;
+        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.double_jump.cooldown"))) return;
 
         player.setAllowFlight(true);
         player.setFlyingFallDamage(TriState.TRUE);
-        playerNBT.set(new NamespacedKey(plugin, "massivecombat.double_jump.ready"), PersistentDataType.BOOLEAN, true);
+        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.double_jump.ready"), PersistentDataType.BOOLEAN, true);
     }
 
     private void wallJumpCheck(Player player) {
         if (!player.hasPermission("massivecombat.ability.starter.wall_jump")) return;
 
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        Integer jumps = playerNBT.get(new NamespacedKey(plugin, "massivecombat.wall_jump.jumps"), PersistentDataType.INTEGER);
+        Integer jumps = playerNBT.get(new NamespacedKey(this.plugin, "massivecombat.wall_jump.jumps"), PersistentDataType.INTEGER);
         if (jumps != null && jumps <= 0) return;
 
-        int[] lastCoords = playerNBT.get(new NamespacedKey(plugin, "massivecombat.wall_jump.last_coords"), PersistentDataType.INTEGER_ARRAY);
+        int[] lastCoords = playerNBT.get(new NamespacedKey(this.plugin, "massivecombat.wall_jump.last_coords"), PersistentDataType.INTEGER_ARRAY);
         if (lastCoords != null) {
             int differenceX = Math.abs(lastCoords[0] - player.getLocation().getBlockX());
             int differenceZ = Math.abs(lastCoords[1] - player.getLocation().getBlockZ());
@@ -88,12 +88,12 @@ public class ResetJumpStanceListener implements Listener {
         }
 
         // remove wall jump cooldown tag
-        Long cooldownTime = playerNBT.get(new NamespacedKey(plugin, "massivecombat.wall_jump.cooldown"), PersistentDataType.LONG);
+        Long cooldownTime = playerNBT.get(new NamespacedKey(this.plugin, "massivecombat.wall_jump.cooldown"), PersistentDataType.LONG);
         if (cooldownTime != null && System.currentTimeMillis() >= cooldownTime)
-            playerNBT.remove(new NamespacedKey(plugin, "massivecombat.wall_jump.cooldown"));
+            playerNBT.remove(new NamespacedKey(this.plugin, "massivecombat.wall_jump.cooldown"));
 
         // return if player has the wall jump cooldown tag
-        if (playerNBT.has(new NamespacedKey(plugin, "massivecombat.wall_jump.cooldown"))) return;
+        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.wall_jump.cooldown"))) return;
 
         player.setAllowFlight(true);
         player.setFlyingFallDamage(TriState.TRUE);
