@@ -124,6 +124,7 @@ public class HealthEffectsEvents implements Listener {
     public void onFallDamage(EntityDamageEvent event) {
         if (event.isCancelled()) return;
         if (!(event.getEntity() instanceof Player player)) return;
+        if (!player.hasPermission("massivecombat.safer_fall")) return;
         if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
 
         double damage = event.getDamage();

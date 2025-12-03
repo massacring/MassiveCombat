@@ -7,7 +7,7 @@ description: "A minecraft plugin that adds a few combat improvements."
 permissions:
   massivecombat.ability.starter.*:
     description: Allows player to use all abilities.
-    default: true
+    default: false
     children:
       massivecombat.ability.starter.double_jump: true
       massivecombat.ability.starter.wall_jump: true
@@ -24,4 +24,7 @@ permissions:
     default: false
   massivecombat.ability.starter.deflect:
     description: Allows player to deflect projectiles.
+    default: false
+  massivecombat.safer_fall:
+    description: Allows the player to fall extra blocks without fall damage.
     default: false
