@@ -13,6 +13,7 @@ public record OnPlayerJoin(MassiveCombat plugin) implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        if (!player.hasPermission("massivecombat.safer_fall")) return;
         AttributeInstance safeFallDistanceAttribute = player.getAttribute(Attribute.SAFE_FALL_DISTANCE);
         double safeFallDistance = this.plugin.getConfig().getDouble("safe_fall_distance");
         if (safeFallDistanceAttribute != null) safeFallDistanceAttribute.setBaseValue(safeFallDistance);

@@ -4,6 +4,7 @@
 
 ## Generic
 safe_fall_distance: 6.0 # Applies to anyone with the massivecombat.safer_fall permission.
+glass_ankles: false # Gives slowness based on fall damage. Applies to anyone with the massivecombat.glass_ankles permission.
 disable_invulnerability_frames: false # Applies to all entities in the world.
 
 ## Movement
@@ -100,7 +101,7 @@ LHE_duration: 200 # Duration of low health effects in ticks.
 # Must be added through other means, my plugin only deals with the use of the item.
 
 # Healing
-# Must be a consumable item (food, drink).
+# Must be a consumable item.
 base_tag: "massive_healing_item" # Base tag required on the item for it to function as a healing item.
 healing_items:
   bandage:
