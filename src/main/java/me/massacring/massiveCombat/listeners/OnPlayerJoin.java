@@ -8,12 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public class OnPlayerJoin implements Listener {
-    private final MassiveCombat plugin;
-
-    public OnPlayerJoin(MassiveCombat plugin) {
-        this.plugin = plugin;
-    }
+public record OnPlayerJoin(MassiveCombat plugin) implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
