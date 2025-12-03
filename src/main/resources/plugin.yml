@@ -31,3 +31,6 @@ permissions:
   massivecombat.health_effects:
     description: Causes the player to gain various negative effects on lower health.
     default: false
+  massivecombat.items.healing:
+    description: Allows the player to use healing items.
+    default: false
