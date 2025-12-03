@@ -97,7 +97,7 @@ public class HealthEffectsEvents implements Listener {
 
             adds.forEach(name -> {
                 NamespacedKey namespacedKey = NamespacedKey.minecraft(name.toLowerCase());
-                PotionEffectType type = Registry.EFFECT.get(namespacedKey);
+                PotionEffectType type = Registry.MOB_EFFECT.get(namespacedKey);
                 if (type == null) return;
                 ImmutablePair<Integer, Integer> dataPair = new ImmutablePair<>(LHE_duration, toAdd.getInt(name));
                 effects.put(name, dataPair);

@@ -63,7 +63,7 @@ public class healingItems implements Listener {
             if (addEffectsSection != null) {
                 Set<String> effectNames = addEffectsSection.getKeys(false);
                 effectNames.forEach(effectName -> {
-                    NamespacedKey effectKey = NamespacedKey.fromString(effectName);
+                    NamespacedKey effectKey = NamespacedKey.fromString(effectName.toLowerCase());
                     if (effectKey == null) return;
                     PotionEffectType effectType = Registry.MOB_EFFECT.get(effectKey);
                     if (effectType == null) return;
@@ -80,7 +80,7 @@ public class healingItems implements Listener {
             if (removeEffectsSection != null) {
                 Set<String> effectNames = removeEffectsSection.getKeys(false);
                 effectNames.forEach(effectName -> {
-                    NamespacedKey effectKey = NamespacedKey.fromString(effectName);
+                    NamespacedKey effectKey = NamespacedKey.fromString(effectName.toLowerCase());
                     if (effectKey == null) return;
                     PotionEffectType effectType = Registry.MOB_EFFECT.get(effectKey);
                     if (effectType == null) return;
