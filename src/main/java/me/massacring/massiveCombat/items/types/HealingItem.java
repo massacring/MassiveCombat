@@ -5,11 +5,11 @@ import java.util.List;
 
 public record HealingItem(
         String tag,
-        float heal_amount,
+        float healAmount,
         boolean instant,
-        int use_time,
-        HashMap<String,HashMap<String, Integer>> used_effects,
-        List<String> remove_effects,
-        HashMap<String, Integer> during_effects
+        int useTime,
+        HashMap<String,HashMap<String, Integer>> usedEffects,
+        List<String> removeEffects,
+        HashMap<String, Integer> duringEffects
 ) {
 }
