@@ -1,15 +1,17 @@
 package me.massacring.massiveCombat.items.types;
 
-import java.util.HashMap;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
 import java.util.List;
 
 public record HealingItem(
         String tag,
-        float healAmount,
+        double healAmount,
         boolean instant,
         int useTime,
-        HashMap<String,HashMap<String, Integer>> usedEffects,
-        List<String> removeEffects,
-        HashMap<String, Integer> duringEffects
+        float useSlow,
+        List<PotionEffect> addEffects,
+        List<PotionEffectType> removeEffects
 ) {
 }
