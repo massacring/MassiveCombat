@@ -8,12 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 
-public class CallPlayerChangeHealthEvent implements Listener {
-    private final MassiveCombat plugin;
-
-    public CallPlayerChangeHealthEvent(MassiveCombat plugin) {
-        this.plugin = plugin;
-    }
+public record CallPlayerChangeHealthEvent(MassiveCombat plugin) implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerDamage(EntityDamageEvent event) {
