@@ -9,12 +9,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class InvincibilityFramesEvents implements Listener {
-    private final MassiveCombat plugin;
     private final boolean disableIFrames;
 
     public InvincibilityFramesEvents(MassiveCombat plugin) {
-        this.plugin = plugin;
-        FileConfiguration config = this.plugin.getConfig();
+        FileConfiguration config = plugin.getConfig();
         this.disableIFrames = config.getBoolean("disable_invulnerability_frames");
     }
 
