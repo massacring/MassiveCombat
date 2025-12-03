@@ -14,12 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 public class HealingItemsEvents implements Listener {
@@ -42,39 +38,7 @@ public class HealingItemsEvents implements Listener {
             if (tag == null) tag = "";
             double healAmount = itemSection.getInt("heal_amount");
 
-            List<PotionEffect> addEffects = new ArrayList<>();
-            List<PotionEffectType> removeEffects = new ArrayList<>();
-
-            ConfigurationSection addEffectsSection = itemSection.getConfigurationSection("add_effects");
-            if (addEffectsSection != null) {
-                Set<String> effectNames = addEffectsSection.getKeys(false);
-                effectNames.forEach(effectName -> {
-                    NamespacedKey effectKey = NamespacedKey.fromString(effectName.toLowerCase());
-                    if (effectKey == null) return;
-                    PotionEffectType effectType = Registry.MOB_EFFECT.get(effectKey);
-                    if (effectType == null) return;
-                    ConfigurationSection effectSection = addEffectsSection.getConfigurationSection(effectName);
-                    if (effectSection == null) return;
-                    int amplifier = effectSection.getInt("amplifier");
-                    int duration = effectSection.getInt("duration");
-                    PotionEffect effect = new PotionEffect(effectType, duration, amplifier);
-                    addEffects.add(effect);
-                });
-            }
-
-            ConfigurationSection removeEffectsSection = itemSection.getConfigurationSection("remove_effects");
-            if (removeEffectsSection != null) {
-                Set<String> effectNames = removeEffectsSection.getKeys(false);
-                effectNames.forEach(effectName -> {
-                    NamespacedKey effectKey = NamespacedKey.fromString(effectName.toLowerCase());
-                    if (effectKey == null) return;
-                    PotionEffectType effectType = Registry.MOB_EFFECT.get(effectKey);
-                    if (effectType == null) return;
-                    removeEffects.add(effectType);
-                });
-            }
-
-            HealingItem item = new HealingItem(tag, healAmount, addEffects, removeEffects);
+            HealingItem item = new HealingItem(tag, healAmount);
             itemHash.put(itemName, item);
         });
     }
@@ -98,15 +62,6 @@ public class HealingItemsEvents implements Listener {
         HealingItem healingItem = itemHash.get(itemTag);
         if (healingItem == null) return;
 
-        useItemEffects(player, healingItem);
-    }
-
-    private void useItemEffects(Player player, HealingItem item) {
-        // Heal player
-        player.heal(item.healAmount());
-        // Remove effects
-        item.removeEffects().forEach(player::removePotionEffect);
-        // Add effects
-        item.addEffects().forEach(player::addPotionEffect);
+        player.heal(healingItem.healAmount());
     }
 }
