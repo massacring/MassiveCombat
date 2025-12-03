@@ -2,6 +2,8 @@ package me.massacring.massiveCombat.items.listeners;
 
 import me.massacring.massiveCombat.MassiveCombat;
 import me.massacring.massiveCombat.items.types.HealingItem;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -48,15 +50,19 @@ public class HealingItemsEvents implements Listener {
         if (event.isCancelled()) return;
         // Check if the action is done by the off-hand
         if (event.getHand() == EquipmentSlot.OFF_HAND) return;
-        // Check if the player has permission
-        Player player = event.getPlayer();
-        if (!player.hasPermission("massivecombat.items.healing")) return;
         // Check that the item has the correct tags
         ItemStack item = event.getItem();
         ItemMeta itemMeta = item.getItemMeta();
         PersistentDataContainer itemNBT = itemMeta.getPersistentDataContainer();
         if (!itemNBT.has(new NamespacedKey(this.plugin, "massive_healing_item")))
             return;
+        // Check if the player has permission
+        Player player = event.getPlayer();
+        if (!player.hasPermission("massivecombat.items.healing")) {
+            player.sendMessage(Component.text("You don't have permission to use this item.").color(NamedTextColor.RED));
+            event.setCancelled(true);
+            return;
+        }
         // Get the healing item from the tag.
         String itemTag = itemNBT.get(new NamespacedKey(this.plugin, "massive_healing_item"), PersistentDataType.STRING);
         HealingItem healingItem = itemHash.get(itemTag);
