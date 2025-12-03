@@ -42,6 +42,7 @@ public class HealthEffectsEvents implements Listener {
     public void onPlayerChangeHealth(PlayerChangeHealthEvent event) {
         if (event.isCancelled()) return;
         Player player = event.getPlayer();
+        if (!player.hasPermission("massivecombat.health_effects")) return;
 
         UUID uuid = player.getUniqueId();
         if (lowHealthEffectTasks.containsKey(uuid))

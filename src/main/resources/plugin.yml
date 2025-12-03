@@ -28,3 +28,6 @@ permissions:
   massivecombat.safer_fall:
     description: Allows the player to fall extra blocks without fall damage.
     default: false
+  massivecombat.health_effects:
+    description: Causes the player to gain various negative effects on lower health.
+    default: false
