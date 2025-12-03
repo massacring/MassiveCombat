@@ -1,3 +1,7 @@
+### Information
+## Sounds
+# To know what sound to use, look at the Sound Events found here: https://minecraft.wiki/w/Sounds.json#Sound_events
+
 ## Generic
 safe_fall_distance: 6.0
 disable_invulnerability_frames: true
@@ -6,14 +10,14 @@ disable_invulnerability_frames: true
 # Double Jump
 double_jump_multiple: 0.5
 double_jump_setY: 0.5
-double_jump_sound: "ENTITY_BREEZE_IDLE_AIR"
+double_jump_sound: "entity.breeze.idle_air"
 double_jump_use_cooldown: false
 double_jump_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
 
 # Wall Jump
 wall_jump_multiple: 0.35
 wall_jump_setY: 0.55
-wall_jump_sound: "ENTITY_BREEZE_JUMP"
+wall_jump_sound: "entity.breeze.jump"
 wall_jump_use_cooldown: false
 wall_jump_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
 wall_jump_num_of_jumps: 2 # How many times you can wall jump in a row
@@ -21,7 +25,7 @@ wall_jump_min_distance: 3 # The minimum distance you need to move on the x and z
 
 # Sliding
 slide_multiple: 0.6
-slide_sound: "ITEM_BRUSH_BRUSHING_GRAVEL"
+slide_sound: "item.brush.brushing.gravel"
 slide_use_cooldown: false
 slide_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
 slide_craw_duration: 10 # How many ticks you should be in crawl mode after slide is activated.
@@ -79,11 +83,11 @@ deflection_use_hold_frequency: 10 # The delay of ticks between checking if the p
 deflection_whitelist_tags: # the item in your offhand needs one of these tags to enable deflection.
   - "deflecting"
 deflection_minimum_angle: 8.0
-deflection_sound: "ENTITY_BREEZE_DEFLECT"
+deflection_sound: "entity.breeze.deflect"
 deflection_use_cooldown: false
 deflection_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
 
 # Backstab
 backstab_damage: 3.0 # Bonus damage to be applied when attacking an entity facing away from you.
 backstab_angle: 30.0 # How many degrees of leeway the entity you're stabbing from behind has in order to count as being "behind"
-backstab_sound: "ITEM_WOLF_ARMOR_DAMAGE"
+backstab_sound: "item.wolf_armor.damage"
