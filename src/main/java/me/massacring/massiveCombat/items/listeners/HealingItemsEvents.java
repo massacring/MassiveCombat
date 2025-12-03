@@ -32,12 +32,12 @@ import java.util.Set;
 
 import static me.massacring.massiveCombat.utils.getNBT.itemNBT;
 
-public class healingItems implements Listener {
+public class HealingItemsEvents implements Listener {
     private final MassiveCombat plugin;
     private final HashMap<Player, BukkitTask> taskHash = new HashMap<>();
     private final HashMap<String, HealingItem> itemHash = new HashMap<>();
 
-    public healingItems(MassiveCombat plugin) {
+    public HealingItemsEvents(MassiveCombat plugin) {
         this.plugin = plugin;
         FileConfiguration config = this.plugin.getConfig();
 

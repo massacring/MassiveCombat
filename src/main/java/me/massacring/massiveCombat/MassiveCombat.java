@@ -4,6 +4,7 @@ import me.massacring.massiveCombat.combat.events.CallPlayerChangeHealthEvent;
 import me.massacring.massiveCombat.combat.listeners.BackstabEvents;
 import me.massacring.massiveCombat.combat.listeners.DeflectionEvents;
 import me.massacring.massiveCombat.combat.listeners.HealthEffectsEvents;
+import me.massacring.massiveCombat.items.listeners.HealingItemsEvents;
 import me.massacring.massiveCombat.listeners.InvincibilityFramesEvents;
 import me.massacring.massiveCombat.listeners.OnPlayerJoin;
 import me.massacring.massiveCombat.movement.listeners.DoubleJumpListener;
@@ -39,7 +40,8 @@ public final class MassiveCombat extends JavaPlugin {
                 new CallPlayerChangeHealthEvent(this),
                 new HealthEffectsEvents(this),
                 new DeflectionEvents(this),
-                new BackstabEvents(this)
+                new BackstabEvents(this),
+                new HealingItemsEvents(this)
         ).forEach(listener -> this.getServer().getPluginManager().registerEvents(listener, this));
     }
 }
