@@ -74,7 +74,8 @@ public class HealthEffectsEvents implements Listener {
 
         Set<String> keys = lowHealthEffectsSection.getKeys(false);
         keys.forEach(key -> {
-            ConfigurationSection section = Objects.requireNonNull(lowHealthEffectsSection.getConfigurationSection(key));
+            ConfigurationSection section = lowHealthEffectsSection.getConfigurationSection(key);
+            if (section == null) return;
             if (section.getKeys(false).contains("copy")) return;
 
             int keyNumber;
