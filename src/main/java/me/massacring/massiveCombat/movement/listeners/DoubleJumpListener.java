@@ -14,7 +14,7 @@ public class DoubleJumpListener implements Listener {
     private final MassiveCombat plugin;
     private final double multiple;
     private final double setY;
-    private final String sound;
+    private final Sound sound;
     private final boolean useCooldown;
     private final int cooldownTicks;
 
@@ -23,7 +23,15 @@ public class DoubleJumpListener implements Listener {
         FileConfiguration config = this.plugin.getConfig();
         this.multiple = config.getDouble("double_jump_multiple");
         this.setY = config.getDouble("double_jump_setY");
-        this.sound = config.getString("double_jump_sound");
+
+        String soundStr = config.getString("double_jump_sound");
+        if (soundStr == null) soundStr = "";
+        NamespacedKey soundKey = NamespacedKey.fromString(soundStr);
+        if (soundKey != null)
+            this.sound = Registry.SOUNDS.get(soundKey);
+        else
+            this.sound = Sound.ENTITY_BREEZE_DEFLECT;
+
         this.useCooldown = config.getBoolean("double_jump_use_cooldown");
         this.cooldownTicks = config.getInt("double_jump_cooldown");
     }
@@ -45,12 +53,12 @@ public class DoubleJumpListener implements Listener {
         player.setFlying(false);
 
         player.setVelocity(player.getLocation().getDirection().multiply(this.multiple).setY(this.setY));
-        player.getWorld().playSound(player.getLocation(), Sound.valueOf(this.sound), SoundCategory.PLAYERS, 1, 1);
+        player.getWorld().playSound(player.getLocation(), this.sound, SoundCategory.PLAYERS, 1, 1);
         player.getWorld().spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, player.getLocation(), 20, 0.5, 0, 0.5, 0);
         player.getWorld().spawnParticle(Particle.LARGE_SMOKE, player.getLocation(), 10, 0.5, 0, 0.5, 0.03);
 
         // set double jump cooldown tag
         long cooldownTime = System.currentTimeMillis() + (this.useCooldown ? (this.cooldownTicks * 50L) : 0);
-        playerNBT.set(new NamespacedKey(plugin, "massivecombat.double_jump.cooldown"), PersistentDataType.LONG, cooldownTime);
+        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.double_jump.cooldown"), PersistentDataType.LONG, cooldownTime);
     }
 }
