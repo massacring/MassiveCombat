@@ -98,15 +98,13 @@ LHE_duration: 200 # Duration of low health effects in ticks.
 
 ## Items
 # Must be added through other means, my plugin only deals with the use of the item.
+# Must be a consumable item (food, drink).
 # Healing
 base_tag: "massive_healing_item" # Base tag required on the item for it to function as a healing item.
 healing_items:
   bandage:
     tag: "bandage" # The tag to look for in the item to count as a "bandage".
     heal_amount: 5 # Health points to heal, 1 being half a heart.
-    instant: false # Whether the item should be used instantly on right-click.
-    use_time: 100 # How long you need to hold right-click until the item is used, in ticks.
-    use_slow: 0.7 # How much to slow the player when using the item. Player speed is multiplied by this amount.
     add_effects: # Effects to add after item is used.
       REGENERATION:
         amplifier: 0 # Level of the effect; 0 is actually level 1.
@@ -115,8 +113,5 @@ healing_items:
       - BLEEDING # Removes the custom "bleeding" effect.
   splinters:
     tag: "splinters"
-    instant: false
-    use_time: 100
-    use_slow: 0.3
     remove_effects:
       - SLOWNESS

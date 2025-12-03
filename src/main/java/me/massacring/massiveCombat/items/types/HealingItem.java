@@ -8,9 +8,6 @@ import java.util.List;
 public record HealingItem(
         String tag,
         double healAmount,
-        boolean instant,
-        int useTime,
-        float useSlow,
         List<PotionEffect> addEffects,
         List<PotionEffectType> removeEffects
 ) {
