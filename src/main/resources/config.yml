@@ -8,6 +8,7 @@ disable_invulnerability_frames: false # Applies to all entities in the world.
 
 ## Movement
 # Double Jump
+# Only applies to players with the massivecombat.ability.starter.double_jump permission node.
 double_jump_multiple: 0.5
 double_jump_setY: 0.5
 double_jump_sound: "entity.breeze.idle_air"
@@ -15,23 +16,26 @@ double_jump_use_cooldown: false
 double_jump_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
 
 # Wall Jump
+# Only applies to players with the massivecombat.ability.starter.wall_jump permission node.
 wall_jump_multiple: 0.35
 wall_jump_setY: 0.55
 wall_jump_sound: "entity.breeze.jump"
 wall_jump_use_cooldown: false
-wall_jump_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
+wall_jump_cooldown: 100 # Value in ticks. Ignored if wall_jump_use_cooldown is false.
 wall_jump_num_of_jumps: 2 # How many times you can wall jump in a row
 wall_jump_min_distance: 3 # The minimum distance you need to move on the x and z axis to wall jump again.
 
 # Sliding
+# Only applies to players with the massivecombat.ability.starter.slide permission node.
 slide_multiple: 0.6
 slide_sound: "item.brush.brushing.gravel"
 slide_use_cooldown: false
-slide_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
+slide_cooldown: 100 # Value in ticks. Ignored if slide_use_cooldown is false.
 slide_craw_duration: 10 # How many ticks you should be in crawl mode after slide is activated.
 
 ## Combat
 # Health Effects
+# Only applies to players with the massivecombat.health_effects permission node.
 slowness_ticks_per_block_fallen: 200 # Gives 10 seconds of slowness for every block of fall damage.
 low_health_effects:
   1:
