@@ -34,6 +34,20 @@ slide_cooldown: 100 # Value in ticks. Ignored if slide_use_cooldown is false.
 slide_craw_duration: 10 # How many ticks you should be in crawl mode after slide is activated.
 
 ## Combat
+# Deflection
+deflection_use_hold_frequency: 10 # The delay of ticks between checking if the player is still holding right-click.
+deflection_whitelist_tags: # the item in your offhand needs one of these tags to enable deflection.
+  - "deflecting"
+deflection_minimum_angle: 8.0 # The angle in degrees that you have to match a projectile to deflect it.
+deflection_sound: "entity.breeze.deflect"
+deflection_use_cooldown: false
+deflection_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
+
+# Backstab
+backstab_damage: 3.0 # Bonus damage to be applied when attacking an entity facing away from you.
+backstab_angle: 30.0 # How many degrees of leeway you have compared the entity in order to count as being "behind"
+backstab_sound: "item.wolf_armor.damage"
+
 # Health Effects
 # Only applies to players with the massivecombat.health_effects permission node.
 slowness_ticks_per_block_fallen: 200 # Gives 10 seconds of slowness for every block of fall damage.
@@ -82,16 +96,27 @@ low_health_effects:
     copy: 12
 LHE_duration: 200 # Duration of low health effects in ticks.
 
-# Deflection
-deflection_use_hold_frequency: 10 # The delay of ticks between checking if the player is still holding right-click.
-deflection_whitelist_tags: # the item in your offhand needs one of these tags to enable deflection.
-  - "deflecting"
-deflection_minimum_angle: 8.0 # The angle in degrees that you have to match a projectile to deflect it.
-deflection_sound: "entity.breeze.deflect"
-deflection_use_cooldown: false
-deflection_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.
-
-# Backstab
-backstab_damage: 3.0 # Bonus damage to be applied when attacking an entity facing away from you.
-backstab_angle: 30.0 # How many degrees of leeway you have compared the entity in order to count as being "behind"
-backstab_sound: "item.wolf_armor.damage"
+## Items
+# Must be added through other means, my plugin only deals with the use of the item.
+# Healing
+healing_items:
+  bandage:
+    tag: "bandage" # The tag to look for in the item to count as a "bandage".
+    heal_amount: 5 # Health points to heal, 1 being half a heart.
+    instant: false # Whether the item should be used instantly on right-click.
+    use_time: 100 # How long you need to hold right-click until the item is used, in ticks.
+    used_effects: # Effects to gain after item is used.
+      REGENERATION:
+        level: 0 # Level of the effect; 0 is actually level 1.
+        duration: 200 # Duration in ticks.
+    remove_effects: # Effects to remove after item is used.
+      - BLEEDING # Removes the custom "bleeding" effect.
+    during_effects: # Effects to gain while holding right-click with the item.
+      SLOWNESS: 0 # name: level (duration is constant as long as you hold right-click)
+  splinters:
+    tag: "splinters"
+    instant: false
+    use_time: 100
+    remove_effects:
+      - SLOWNESS
+  
