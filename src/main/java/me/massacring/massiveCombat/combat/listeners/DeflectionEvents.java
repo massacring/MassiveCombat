@@ -120,11 +120,11 @@ public class DeflectionEvents implements Listener {
         // Reverse the arrow's direction.
         Vector deflectedVelocity = arrowVelocity.multiply(-1);
         // Applies some random variation to make the deflection more natural
-        deflectedVelocity = deflectedVelocity.multiply(new Vector(
-                (Math.random() - 0.5) * 0.2,
-                (Math.random() - 0.5) * 0.2,
-                (Math.random() - 0.5) * 0.2
-        ));
+//        deflectedVelocity = deflectedVelocity.multiply(new Vector(
+//                (Math.random() - 0.5) * 0.2,
+//                (Math.random() - 0.5) * 0.2,
+//                (Math.random() - 0.5) * 0.2
+//        ));
         arrow.setVelocity(deflectedVelocity);
         event.setCancelled(true);
 
@@ -138,13 +138,21 @@ public class DeflectionEvents implements Listener {
         UUID playerId = player.getUniqueId();
 
         BukkitRunnable task = new BukkitRunnable() {
+            private int count = 0;
             @Override
             public void run() {
-                removePlayerFromRightClickingSet(player);
+                if (count <= useHoldFrequency) {
+                    count++;
+                    return;
+                }
+                if (!player.isBlocking()) {
+                    removePlayerFromRightClickingSet(player);
+                    this.cancel();
+                }
             }
         };
 
-        task.runTaskLater(this.plugin, this.useHoldFrequency);
+        task.runTaskTimer(this.plugin, 1, 0);
 
         this.rightClickingTasks.put(playerId, task);
     }
