@@ -36,10 +36,10 @@ slide_craw_duration: 10 # How many ticks you should be in crawl mode after slide
 
 ## Combat
 # Deflection
-deflection_use_hold_frequency: 10 # The delay of ticks between checking if the player is still holding right-click.
 deflection_whitelist_tags: # the item in your offhand needs one of these tags to enable deflection.
   - "deflecting"
 deflection_minimum_angle: 8.0 # The angle in degrees that you have to match a projectile to deflect it.
+deflection_power: 2 # The amount of velocity the projectile gains after being deflected.
 deflection_sound: "entity.breeze.deflect"
 deflection_use_cooldown: false
 deflection_cooldown: 100 # Value in ticks. Ignored if double_jump_use_cooldown is false.

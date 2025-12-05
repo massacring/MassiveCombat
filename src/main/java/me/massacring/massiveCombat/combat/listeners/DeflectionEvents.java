@@ -1,33 +1,30 @@
 package me.massacring.massiveCombat.combat.listeners;
 
 import me.massacring.massiveCombat.MassiveCombat;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 public class DeflectionEvents implements Listener {
     private final MassiveCombat plugin;
-    private final HashMap<UUID, BukkitRunnable> rightClickingTasks = new HashMap<>();
-    private final long useHoldFrequency;
     private final List<String> whitelistTags;
     private final double minimumAngle;
+    private final int power;
     private final Sound sound;
     private final boolean useCooldown;
     private final int cooldownTicks;
@@ -35,9 +32,9 @@ public class DeflectionEvents implements Listener {
     public DeflectionEvents(MassiveCombat plugin) {
         this.plugin = plugin;
         FileConfiguration config = this.plugin.getConfig();
-        this.useHoldFrequency = config.getLong("deflection_use_hold_frequency");
         this.whitelistTags = config.getStringList("deflection_whitelist_tags");
         this.minimumAngle = config.getDouble("deflection_minimum_angle");
+        this.power = config.getInt("deflection_power");
 
         String soundStr = config.getString("deflection_sound");
         if (soundStr == null) soundStr = "";
@@ -51,28 +48,10 @@ public class DeflectionEvents implements Listener {
         this.cooldownTicks = config.getInt("deflection_cooldown");
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        // Check if the event is a right-click
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        // Check if the action is done by the off-hand
-        if (event.getHand() != EquipmentSlot.OFF_HAND) return;
-        Player player = event.getPlayer();
-        // Check that an item is held
-        ItemStack item = event.getItem();
-        if (item == null) return;
-        // Check if the player has permission
-        if (!player.hasPermission("massivecombat.ability.starter.deflect")) return;
-        // Check if the player is on cooldown
-        PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"))) {
-            Long cooldownTime = playerNBT.get(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"), PersistentDataType.LONG);
-            if (cooldownTime != null && System.currentTimeMillis() >= cooldownTime)
-                playerNBT.remove(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"));
-            else return;
-        }
-        // Check that the item has the correct tags
+    private boolean canDeflect(ItemStack item) {
+        if (item == null) return false;
         ItemMeta itemMeta = item.getItemMeta();
+        if (itemMeta == null) return false;
         PersistentDataContainer itemNBT = itemMeta.getPersistentDataContainer();
         boolean tagsMatch = false;
         for (String tag : this.whitelistTags) {
@@ -81,84 +60,65 @@ public class DeflectionEvents implements Listener {
                 break;
             }
         }
-        if (!tagsMatch) return;
-
-        UUID playerId = player.getUniqueId();
-
-        // Cancel any existing task
-        if (this.rightClickingTasks.containsKey(playerId)) {
-            this.rightClickingTasks.get(playerId).cancel();
-        }
-        // Add the player to the HashMap
-        addPlayerToRightClickingSet(player);
+        return tagsMatch;
     }
 
     @EventHandler
     public void deflectArrow(EntityDamageByEntityEvent event) {
         if (event.isCancelled()) return;
-        // Check if the damaged entity is a player
         if (!(event.getEntity() instanceof Player player)) return;
-        // Check if the player was right-clicking
-        if (!this.rightClickingTasks.containsKey(player.getUniqueId())) return;
-        // Check if the damage was caused by an arrow
+        if (!player.hasPermission("massivecombat.ability.starter.deflect")) return;
+        if (player.isBlocking()) return;
         if (!(event.getDamager() instanceof Arrow arrow)) return;
+
+        // Check if the item in either hand can deflect.
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (!canDeflect(item)) {
+            item = player.getInventory().getItemInOffHand();
+            if (!canDeflect(item)) return;
+        }
+
+        // Check if the player is on cooldown
+        PersistentDataContainer playerNBT = player.getPersistentDataContainer();
+        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"))) {
+            Long cooldownTime = playerNBT.get(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"), PersistentDataType.LONG);
+            if (cooldownTime != null && System.currentTimeMillis() >= cooldownTime)
+                playerNBT.remove(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"));
+            else return;
+        }
+
         // Check if the player is angled correctly
         double combinedYaw = Math.abs(player.getYaw()) + Math.abs(arrow.getYaw());
         double angleInDegrees = Math.abs(180 - combinedYaw);
-        if (angleInDegrees > this.minimumAngle) return;
+        if (angleInDegrees > this.minimumAngle) {
+            // Cancel Shield Blocking
+            if (player.isBlocking() && event.getFinalDamage() == 0) {
+                player.damage(event.getDamage());
+                arrow.remove();
+            }
+            return;
+        }
 
         // Get and play Sound
         player.getWorld().playSound(player.getLocation(), this.sound, SoundCategory.PLAYERS, 1.0f, 1.0f);
 
-
-        // Deflect arrow
+        // Deflect particle
         Vector playerVector = player.getLocation().getDirection().normalize();
         Location sweepLocation = player.getEyeLocation().add(playerVector).subtract(new Vector(0, 0.3, 0));
         player.getWorld().spawnParticle(Particle.SWEEP_ATTACK, sweepLocation, 1);
 
-        Vector arrowVelocity = arrow.getVelocity();
         // Reverse the arrow's direction.
-        Vector deflectedVelocity = arrowVelocity.multiply(-1);
-        // Applies some random variation to make the deflection more natural
-//        deflectedVelocity = deflectedVelocity.multiply(new Vector(
-//                (Math.random() - 0.5) * 0.2,
-//                (Math.random() - 0.5) * 0.2,
-//                (Math.random() - 0.5) * 0.2
-//        ));
-        arrow.setVelocity(deflectedVelocity);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                arrow.setVelocity(player.getEyeLocation().getDirection().multiply(power));
+            }
+        }.runTaskLater(this.plugin, 1);
+
         event.setCancelled(true);
 
         // set deflection cooldown tag
         long cooldownTime = System.currentTimeMillis() + (this.useCooldown ? (this.cooldownTicks * 50L) : 0);
-        PersistentDataContainer playerNBT = player.getPersistentDataContainer();
         playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"), PersistentDataType.LONG, cooldownTime);
-    }
-
-    private void addPlayerToRightClickingSet(Player player) {
-        UUID playerId = player.getUniqueId();
-
-        BukkitRunnable task = new BukkitRunnable() {
-            private int count = 0;
-            @Override
-            public void run() {
-                if (count <= useHoldFrequency) {
-                    count++;
-                    return;
-                }
-                if (!player.isBlocking()) {
-                    removePlayerFromRightClickingSet(player);
-                    this.cancel();
-                }
-            }
-        };
-
-        task.runTaskTimer(this.plugin, 1, 0);
-
-        this.rightClickingTasks.put(playerId, task);
-    }
-
-    private void removePlayerFromRightClickingSet(Player player) {
-        UUID playerId = player.getUniqueId();
-        this.rightClickingTasks.remove(playerId);
     }
 }
