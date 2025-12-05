@@ -34,6 +34,7 @@ public class BackstabEvents implements Listener {
     public void onPlayerAttack(EntityDamageByEntityEvent event) {
         if (event.isCancelled()) return;
         if (!(event.getDamager() instanceof Player player)) return;
+        if (!player.hasPermission("massivecombat.backstab")) return;
         if (!(event.getEntity() instanceof LivingEntity entity)) return;
 
         Vector playerDirection = getHorizontalDirection(player);

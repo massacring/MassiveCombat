@@ -37,3 +37,6 @@ permissions:
   massivecombat.items.healing:
     description: Allows the player to use all healing items.
     default: false
+  massivecombat.backstab:
+    description: Allows the player to apply backstab damage when attacking from behind.
+    default: false
