@@ -1,8 +1,7 @@
 package me.massacring.massiveCombat.combat.listeners;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import me.massacring.massiveCombat.MassiveCombat;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Arrow;
@@ -15,7 +14,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.List;
@@ -55,7 +53,9 @@ public class DeflectionEvents implements Listener {
         PersistentDataContainer itemNBT = itemMeta.getPersistentDataContainer();
         boolean tagsMatch = false;
         for (String tag : this.whitelistTags) {
-            if (itemNBT.has(new NamespacedKey(this.plugin, tag))) {
+            NamespacedKey key = NamespacedKey.fromString(tag);
+            if (key == null) continue;
+            if (itemNBT.has(key)) {
                 tagsMatch = true;
                 break;
             }
@@ -89,7 +89,8 @@ public class DeflectionEvents implements Listener {
 
         // Check if the player is angled correctly
         double combinedYaw = Math.abs(player.getYaw()) + Math.abs(arrow.getYaw());
-        double angleInDegrees = Math.abs(180 - combinedYaw);
+        double combinedPitch = Math.abs(player.getPitch()) + Math.abs(arrow.getPitch());
+        double angleInDegrees = Math.abs(180 - combinedYaw) + Math.abs(180 - combinedPitch);
         if (angleInDegrees > this.minimumAngle) {
             // Cancel Shield Blocking
             if (player.isBlocking() && event.getFinalDamage() == 0) {
