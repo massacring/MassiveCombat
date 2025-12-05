@@ -3,7 +3,7 @@
 # To know what sound to use, look at the Sound Events found here: https://minecraft.wiki/w/Sounds.json#Sound_events
 
 ## Generic
-safe_fall_distance: 6.0 # Applies to anyone with the massivecombat.safer_fall permission.
+safe_fall_distance: 6.0 # Applies to anyone with the massivecombat.safer_fall permission. Applied on join.
 glass_ankles: false # Gives slowness based on fall damage. Applies to anyone with the massivecombat.glass_ankles permission.
 disable_invulnerability_frames: false # Applies to all entities in the world.
 
@@ -37,7 +37,7 @@ slide_craw_duration: 10 # How many ticks you should be in crawl mode after slide
 ## Combat
 # Deflection
 deflection_whitelist_tags: # the item in your offhand needs one of these tags to enable deflection.
-  - "deflecting"
+  - "massivecombat:deflecting"
 deflection_minimum_angle: 8.0 # The angle in degrees that you have to match a projectile to deflect it.
 deflection_power: 2 # The amount of velocity the projectile gains after being deflected.
 deflection_sound: "entity.breeze.deflect"
