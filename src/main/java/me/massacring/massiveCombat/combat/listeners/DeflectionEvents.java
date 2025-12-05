@@ -16,6 +16,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class DeflectionEvents implements Listener {
@@ -88,10 +89,11 @@ public class DeflectionEvents implements Listener {
         }
 
         // Check if the player is angled correctly
-        double combinedYaw = Math.abs(player.getYaw()) + Math.abs(arrow.getYaw());
-        double combinedPitch = Math.abs(player.getPitch()) + Math.abs(arrow.getPitch());
-        double angleInDegrees = Math.abs(180 - combinedYaw) + Math.abs(180 - combinedPitch);
-        if (angleInDegrees > this.minimumAngle) {
+        Vector playerDirection = player.getEyeLocation().getDirection().normalize();
+        Vector arrowDirection = arrow.getLocation().getDirection().normalize();
+        double dotProduct = Math.abs(playerDirection.dot(arrowDirection));
+        double minDot = Math.cos(Math.toRadians(this.minimumAngle));
+        if (dotProduct < minDot) {
             // Cancel Shield Blocking
             if (player.isBlocking() && event.getFinalDamage() == 0) {
                 player.damage(event.getDamage());
