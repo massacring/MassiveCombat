@@ -4,7 +4,25 @@ main: me.massacring.massiveCombat.MassiveCombat
 api-version: '1.21'
 authors: [ massacring ]
 description: "A minecraft plugin that adds a few combat improvements."
+depend:
+  - WeaponMechanics
+  - PlaceholderAPI
+  - MMOCore
+commands:
+  combat:
+    description: "General command for MassiveCombat."
+    usage: "/combat <dummy>"
+    permission: massivecombat.command.combat
+    permission-message: "You do not have permission to use this command."
 permissions:
+  massivecombat.command.admin:
+    description: Access to admin commands.
+    default: false
+    children:
+      massivecombat.command.combat: true
+  massivecombat.command.combat:
+    description: Access to the combat command.
+    default: false
   massivecombat.ability.starter.*:
     description: Allows player to use all abilities.
     default: false

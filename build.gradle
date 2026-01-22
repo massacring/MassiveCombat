@@ -12,10 +12,21 @@ repositories {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
+    maven {
+        name = "phoenixdevt"
+        url = "https://nexus.phoenixdevt.fr/repository/maven-public/"
+    }
+    maven {
+        url = 'https://repo.extendedclip.com/releases/'
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("com.cjcrafter:weaponmechanics:4.1.0")
+    compileOnly "net.Indyuce:MMOCore-API:1.12.1-SNAPSHOT"
+    compileOnly "io.lumine:MythicLib-dist:1.6.2-SNAPSHOT"
+    compileOnly 'me.clip:placeholderapi:2.11.7'
 }
 
 tasks {
