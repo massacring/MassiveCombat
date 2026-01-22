@@ -1,6 +1,5 @@
 package me.massacring.massiveCombat.combat.listeners;
 
-import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
 import me.massacring.massiveCombat.MassiveCombat;
@@ -146,9 +145,7 @@ public class DeflectionEvents implements Listener {
         Vector playerDirection = player.getEyeLocation().getDirection().normalize();
         double dotProduct = Math.abs(playerDirection.dot(projDirection));
         double minDot = Math.cos(Math.toRadians(this.minimumAngle));
-        if (dotProduct < minDot) return false;
-
-        return true;
+        return !(dotProduct < minDot);
     }
 
     private void deflectAesthetics(Player player) {
