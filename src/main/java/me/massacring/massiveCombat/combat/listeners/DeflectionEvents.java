@@ -1,6 +1,8 @@
-package me.massacring.massiveCombat.combat.listeners;
+package me.massacring.massiveCombat.deflection.listeners;
 
-import io.papermc.paper.datacomponent.DataComponentTypes;
+import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
 import me.massacring.massiveCombat.MassiveCombat;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,7 +18,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
 public class DeflectionEvents implements Listener {
@@ -70,7 +71,7 @@ public class DeflectionEvents implements Listener {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!player.hasPermission("massivecombat.ability.starter.deflect")) return;
         if (player.isBlocking()) return;
-        if (!(event.getDamager() instanceof Arrow arrow)) return;
+        if (!(event.getDamager() instanceof AProjectile projectile)) return;
 
         // Check if the item in either hand can deflect.
         ItemStack item = player.getInventory().getItemInMainHand();
@@ -90,14 +91,14 @@ public class DeflectionEvents implements Listener {
 
         // Check if the player is angled correctly
         Vector playerDirection = player.getEyeLocation().getDirection().normalize();
-        Vector arrowDirection = arrow.getLocation().getDirection().normalize();
+        Vector arrowDirection = projectile.getNormalizedMotion();
         double dotProduct = Math.abs(playerDirection.dot(arrowDirection));
         double minDot = Math.cos(Math.toRadians(this.minimumAngle));
         if (dotProduct < minDot) {
             // Cancel Shield Blocking
             if (player.isBlocking() && event.getFinalDamage() == 0) {
                 player.damage(event.getDamage());
-                arrow.remove();
+                projectile.remove();
             }
             return;
         }
@@ -114,7 +115,7 @@ public class DeflectionEvents implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                arrow.setVelocity(player.getEyeLocation().getDirection().multiply(power));
+                projectile.setMotion(player.getEyeLocation().getDirection().multiply(power));
             }
         }.runTaskLater(this.plugin, 1);
 
