@@ -4,7 +4,6 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.deecaad.weaponmechanics.weapon.weaponevents.PrepareWeaponShootEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +15,12 @@ public class WeaponMechanicsEvents implements Listener {
         double blasterDamage = Double.parseDouble(
                 PlaceholderAPI.setPlaceholders(player, "%mmocore_attribute_blaster_damage%")
         );
-        event.setBaseDamage(event.getBaseDamage() + blasterDamage);
+        double blasterDamagePercent = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, "%mmocore_attribute_blaster_damage_percent%")
+        );
+        double baseDamage = event.getBaseDamage() + blasterDamage;
+        double newDamage = baseDamage + (baseDamage * blasterDamagePercent/100);
+        event.setBaseDamage(Math.max(newDamage, 0));
     }
 
     @EventHandler
@@ -25,7 +29,12 @@ public class WeaponMechanicsEvents implements Listener {
         double blasterReload = Double.parseDouble(
                 PlaceholderAPI.setPlaceholders(player, "%mmocore_attribute_blaster_reload_reduction%")
         );
-        event.setReloadTime((int) (event.getReloadTime() - blasterReload));
+        double blasterReloadPercent = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, "%mmocore_attribute_blaster_reload_reduction_percent%")
+        );
+        double baseReload = event.getReloadTime() - blasterReload;
+        double newReload = baseReload - (baseReload * blasterReloadPercent/100);
+        event.setReloadTime((int) Math.max(newReload, 0));
     }
 
     @EventHandler
@@ -34,6 +43,8 @@ public class WeaponMechanicsEvents implements Listener {
         double blasterSpread = Double.parseDouble(
                 PlaceholderAPI.setPlaceholders(player, "%mmocore_attribute_blaster_spread_reduction%")
         );
-        event.setBaseSpread(event.getBaseSpread() - (blasterSpread/100));
+        double baseSpread = event.getBaseSpread();
+        double newSpread = baseSpread - (baseSpread * (blasterSpread/100));
+        event.setBaseSpread(Math.max(newSpread, 0));
     }
 }
