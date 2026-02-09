@@ -3,6 +3,7 @@ package me.massacring.massiveCombat.addons.subcommands;
 import me.massacring.massiveCombat.MassiveCombat;
 import me.massacring.massiveCombat.commands.SubCommand;
 import net.Indyuce.mmocore.api.player.PlayerData;
+import net.Indyuce.mmocore.gui.skilltree.NodeIncrementResult;
 import net.Indyuce.mmocore.skilltree.NodeState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -11,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SkillTree extends SubCommand {
@@ -20,7 +22,7 @@ public class SkillTree extends SubCommand {
 
     @Override
     public String getSyntax() {
-        return String.format("/%s %s <Player> <skillTreeNodeId> add|set <Level>", getParent(), getName());
+        return String.format("/%s %s <Player> increment <skillTreeNodeId>", getParent(), getName());
     }
 
     @Override
@@ -30,7 +32,7 @@ public class SkillTree extends SubCommand {
             return true;
         }
 
-        if (args.length != 5) {
+        if (args.length != 4) {
             sender.sendMessage(Component.text("Incorrect arguments. " + getSyntax()).color(NamedTextColor.RED));
             return true;
         }
@@ -42,30 +44,31 @@ public class SkillTree extends SubCommand {
         }
 
         PlayerData playerData = PlayerData.get(player.getUniqueId());
-        try {
-            String operation = args[3];
-            if (!List.of("add", "set").contains(operation)) {
-                sender.sendMessage(Component.text("Incorrect arguments. " + getSyntax()).color(NamedTextColor.RED));
-                return true;
-            }
-            AtomicInteger level = new AtomicInteger(Integer.parseInt(args[4]));
-            level.set(Math.max(level.get(), 0));
-
-            playerData.getNodeStates().keySet().forEach(node -> {
-                if (!node.getId().equalsIgnoreCase(args[2])) return;
-
-                switch (operation) {
-                    case "add":
-                        level.set(Math.min(playerData.getNodeLevel(node) + level.get(), node.getMaxLevel()));
-                    case "set":
-                        level.set(Math.min(level.get(), node.getMaxLevel()));
-                }
-                playerData.setNodeLevel(node, level.get());
-                playerData.setNodeState(node, NodeState.UNLOCKED);
-            });
-        } catch (NumberFormatException e) {
+        String operation = args[2];
+        if (!Objects.equals("increment", operation)) {
             sender.sendMessage(Component.text("Incorrect arguments. " + getSyntax()).color(NamedTextColor.RED));
+            return true;
         }
+
+        playerData.getNodeStates().keySet().forEach(node -> {
+            if (!node.getId().equalsIgnoreCase(args[3])) return;
+
+            NodeIncrementResult result = playerData.canIncrementNodeLevel(node);
+
+            switch (result) {
+                case NodeIncrementResult.MAX_LEVEL_REACHED -> {
+                    sender.sendMessage(Component.text("Attempted to upgrade a skill beyond its maximum level.").color(NamedTextColor.RED));
+                    return;
+                }
+                case NodeIncrementResult.PERMISSION_DENIED -> {
+                    sender.sendMessage(Component.text("You don't have permission to upgrade this skill.").color(NamedTextColor.RED));
+                    return;
+                }
+            }
+
+            playerData.setNodeState(node, NodeState.UNLOCKED);
+            playerData.incrementNodeLevel(node);
+        });
 
         return true;
     }
