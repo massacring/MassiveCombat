@@ -28,7 +28,7 @@ public final class MassiveCombat extends JavaPlugin {
         saveDefaultConfig();
         this.config = this.getConfig();
         registerListeners();
-        //registerCommands();
+        registerCommands();
         if (!getServer().getPluginManager().isPluginEnabled("WeaponMechanics")) {
             getLogger().warning("WeaponMechanics not found! Some features will be disabled.");
         }

@@ -23,7 +23,7 @@ public class CommandManager implements CommandExecutor {
     public CommandManager(MassiveCombat plugin){
         List<SubCommand> subCommandList = new ArrayList<>();
         if (plugin.getServer().getPluginManager().isPluginEnabled("MMOCore")) {
-            subCommandList.add(new SkillTree("combat", "skill-tree", "Lets you modify MMOCore skill-tree data."));
+            subCommandList.add(new SkillTree(plugin, "combat", "skill-tree", "Lets you modify MMOCore skill-tree data."));
         }
 
         addCommand("combat", () -> false, subCommandList);

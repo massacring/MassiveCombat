@@ -1,5 +1,6 @@
 package me.massacring.massiveCombat.commands.subcommands;
 
+import me.massacring.massiveCombat.MassiveCombat;
 import me.massacring.massiveCombat.commands.SubCommand;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,8 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public class TargetDummy extends SubCommand {
-    public TargetDummy(String parent, String name, String description) {
-        super(parent, name, description);
+    public TargetDummy(MassiveCombat plugin, String parent, String name, String description) {
+        super(plugin, parent, name, description);
     }
 
     private float snapToCardinal(float yaw) {
