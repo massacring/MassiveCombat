@@ -1,6 +1,6 @@
 package me.massacring.massiveCombat.commands;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 public abstract class SubCommand {
     private final String parent;
@@ -12,11 +12,12 @@ public abstract class SubCommand {
         this.description = description;
     }
 
+    public String getParent() { return parent; }
     public String getName() { return name; }
     public String getDescription() { return description; }
     public String getSyntax() {
         return String.format("/%s %s", parent, name);
     }
 
-    public abstract boolean perform(Player player, String[] args);
+    public abstract boolean perform(CommandSender commandSender, String[] args);
 }

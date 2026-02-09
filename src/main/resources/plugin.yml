@@ -11,7 +11,7 @@ depend:
 commands:
   combat:
     description: "General command for MassiveCombat."
-    usage: "/combat <dummy>"
+    usage: "/combat <dummy|skill-tree>"
     permission: massivecombat.command.combat
     permission-message: "You do not have permission to use this command."
 permissions:

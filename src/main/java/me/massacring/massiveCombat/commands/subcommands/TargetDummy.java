@@ -7,6 +7,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -61,7 +62,11 @@ public class TargetDummy extends SubCommand {
     }
 
     @Override
-    public boolean perform(Player player, String[] args) {
+    public boolean perform(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Only players can run this command.");
+            return false;
+        }
         Location location = player.getLocation();
 
         ArmorStand dummy = summonTargetDummy(location);

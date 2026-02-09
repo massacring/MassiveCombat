@@ -86,7 +86,7 @@ public final class MassiveCombat extends JavaPlugin {
     }
 
     private void registerCommands() {
-        CommandManager commandManager = new CommandManager();
+        CommandManager commandManager = new CommandManager(this);
         Stream.of(
                 "combat"
         ).forEach(label -> {
