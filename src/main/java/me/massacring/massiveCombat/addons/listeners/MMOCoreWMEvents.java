@@ -1,4 +1,4 @@
-package me.massacring.massiveCombat.combat.listeners;
+package me.massacring.massiveCombat.addons.listeners;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.deecaad.weaponmechanics.weapon.weaponevents.PrepareWeaponShootEvent;
@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-public class WeaponMechanicsEvents implements Listener {
+public class MMOCoreWMEvents implements Listener {
     @EventHandler
     public void weaponDamageEvent(WeaponDamageEntityEvent event) {
         if (!(event.getSource().getShooter() instanceof Player player)) return;
