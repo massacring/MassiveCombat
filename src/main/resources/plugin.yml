@@ -4,7 +4,7 @@ main: me.massacring.massiveCombat.MassiveCombat
 api-version: '1.21'
 authors: [ massacring ]
 description: "A minecraft plugin that adds a few combat improvements."
-depend:
+softdepend:
   - WeaponMechanics
   - PlaceholderAPI
   - MMOCore
