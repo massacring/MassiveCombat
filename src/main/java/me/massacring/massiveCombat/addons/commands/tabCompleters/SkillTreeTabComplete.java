@@ -11,17 +11,11 @@ import java.util.List;
 
 public class SkillTreeTabComplete {
     public static List<String> getTabComplete(MassiveCombat plugin, @NotNull String @NotNull [] args) {
-        List<String> tabOptions = new ArrayList<>();
-
-        switch (args.length) {
-            case 1:
-                tabOptions.addAll(plugin.getServer().getOnlinePlayers().stream().map(Player::getName).toList());
-            case 2:
-                tabOptions.add("increment");
-            case 3:
-                tabOptions.addAll(MMOCore.plugin.skillTreeManager.getAllNodes().stream().map(SkillTreeNode::getName).toList());
-        }
-
-        return tabOptions;
+        return switch (args.length) {
+            case 2 -> plugin.getServer().getOnlinePlayers().stream().map(Player::getName).toList();
+            case 3 -> List.of("increment");
+            case 4 -> MMOCore.plugin.skillTreeManager.getAllNodes().stream().map(SkillTreeNode::getId).toList();
+            default -> new ArrayList<>();
+        };
     }
 }

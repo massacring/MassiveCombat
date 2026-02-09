@@ -22,30 +22,30 @@ public class CustomTabCompleter implements TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        List<String> tabOptions = new ArrayList<>();
-        if (!(commandSender instanceof Player player)) return tabOptions;
-        if (!player.hasPermission("massivecombat.command.admin")) return tabOptions;
-        if (!command.getName().equalsIgnoreCase("combat")) return tabOptions;
+        List<String> empty = new ArrayList<>();
+        if (!(commandSender instanceof Player player)) return empty;
+        if (!player.hasPermission("massivecombat.command.admin")) return empty;
+        if (!command.getName().equalsIgnoreCase("combat")) return empty;
 
         boolean MMOCoreEnabled = plugin.getServer().getPluginManager().isPluginEnabled("MMOCore");
 
         switch (args.length) {
-            case 0:
-                if (MMOCoreEnabled) tabOptions.add("skill-tree");
             case 1:
-                if (MMOCoreEnabled && args[0].equals("skill-tree")) {
-                    tabOptions.addAll(SkillTreeTabComplete.getTabComplete(plugin, args));
-                }
+                if (MMOCoreEnabled) return List.of("skill-tree");
             case 2:
                 if (MMOCoreEnabled && args[0].equals("skill-tree")) {
-                    tabOptions.addAll(SkillTreeTabComplete.getTabComplete(plugin, args));
+                    return SkillTreeTabComplete.getTabComplete(plugin, args);
                 }
             case 3:
                 if (MMOCoreEnabled && args[0].equals("skill-tree")) {
-                    tabOptions.addAll(SkillTreeTabComplete.getTabComplete(plugin, args));
+                    return SkillTreeTabComplete.getTabComplete(plugin, args);
+                }
+            case 4:
+                if (MMOCoreEnabled && args[0].equals("skill-tree")) {
+                    return SkillTreeTabComplete.getTabComplete(plugin, args);
                 }
         }
 
-        return tabOptions;
+        return empty;
     }
 }
