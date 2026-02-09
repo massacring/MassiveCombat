@@ -10,6 +10,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class SkillTree extends SubCommand {
     public SkillTree(MassiveCombat plugin, String parent, String name, String description) {
         super(plugin, parent, name, description);
@@ -17,7 +20,7 @@ public class SkillTree extends SubCommand {
 
     @Override
     public String getSyntax() {
-        return String.format("/%s %s <Player> <skillTreeNodeId> <Level>", getParent(), getName());
+        return String.format("/%s %s <Player> <skillTreeNodeId> add|set <Level>", getParent(), getName());
     }
 
     @Override
@@ -27,7 +30,7 @@ public class SkillTree extends SubCommand {
             return true;
         }
 
-        if (args.length != 4) {
+        if (args.length != 5) {
             sender.sendMessage(Component.text("Incorrect arguments. " + getSyntax()).color(NamedTextColor.RED));
             return true;
         }
@@ -40,13 +43,24 @@ public class SkillTree extends SubCommand {
 
         PlayerData playerData = PlayerData.get(player.getUniqueId());
         try {
-            int level = Integer.parseInt(args[3]);
+            String operation = args[3];
+            if (!List.of("add", "set").contains(operation)) {
+                sender.sendMessage(Component.text("Incorrect arguments. " + getSyntax()).color(NamedTextColor.RED));
+                return true;
+            }
+            AtomicInteger level = new AtomicInteger(Integer.parseInt(args[4]));
 
             playerData.getNodeStates().keySet().forEach(node -> {
-                if (node.getId().equalsIgnoreCase(args[2])) {
-                    playerData.setNodeState(node, NodeState.UNLOCKED);
-                    playerData.setNodeLevel(node, level);
+                if (!node.getId().equalsIgnoreCase(args[2])) return;
+
+                switch (operation) {
+                    case "add":
+                        level.set(Math.max(playerData.getNodeLevel(node) + level.get(), node.getMaxLevel()));
+                    case "set":
+                        level.set(Math.max(level.get(), node.getMaxLevel()));
                 }
+                playerData.setNodeLevel(node, level.get());
+                playerData.setNodeState(node, NodeState.UNLOCKED);
             });
         } catch (NumberFormatException e) {
             sender.sendMessage(Component.text("Incorrect arguments. " + getSyntax()).color(NamedTextColor.RED));
