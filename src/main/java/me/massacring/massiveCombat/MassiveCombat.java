@@ -5,6 +5,7 @@ import me.massacring.massiveCombat.combat.listeners.BackstabEvents;
 import me.massacring.massiveCombat.combat.listeners.VanillaDeflectionEvents;
 import me.massacring.massiveCombat.addons.listeners.MMOCoreWMEvents;
 import me.massacring.massiveCombat.commands.CommandManager;
+import me.massacring.massiveCombat.commands.CustomTabCompleter;
 import me.massacring.massiveCombat.items.listeners.HealingItemsEvents;
 import me.massacring.massiveCombat.listeners.InvincibilityFramesEvents;
 import me.massacring.massiveCombat.listeners.OnPlayerJoin;
@@ -91,7 +92,10 @@ public final class MassiveCombat extends JavaPlugin {
                 "combat"
         ).forEach(label -> {
             PluginCommand command = getCommand(label);
-            if (command != null) command.setExecutor(commandManager);
+            if (command != null) {
+                command.setExecutor(commandManager);
+                command.setTabCompleter(new CustomTabCompleter(this));
+            }
             else getLogger().warning(String.format("Failed to register command '%s', check plugin.yml", label));
         });
     }

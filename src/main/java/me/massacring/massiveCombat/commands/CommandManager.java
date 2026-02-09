@@ -1,11 +1,10 @@
 package me.massacring.massiveCombat.commands;
 
 import me.massacring.massiveCombat.MassiveCombat;
-import me.massacring.massiveCombat.addons.subcommands.SkillTree;
+import me.massacring.massiveCombat.addons.commands.subcommands.SkillTree;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

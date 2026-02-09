@@ -1,4 +1,4 @@
-package me.massacring.massiveCombat.addons.subcommands;
+package me.massacring.massiveCombat.addons.commands.subcommands;
 
 import me.massacring.massiveCombat.MassiveCombat;
 import me.massacring.massiveCombat.commands.SubCommand;
