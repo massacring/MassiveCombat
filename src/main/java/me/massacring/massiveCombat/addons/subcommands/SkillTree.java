@@ -11,9 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class SkillTree extends SubCommand {
     public SkillTree(MassiveCombat plugin, String parent, String name, String description) {
