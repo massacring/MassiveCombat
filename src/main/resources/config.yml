@@ -43,6 +43,7 @@ deflection_power: 2 # The amount of velocity the projectile gains after being de
 deflection_sound: "entity.breeze.deflect"
 deflection_use_cooldown: false
 deflection_cooldown: 100 # Value in ticks. Ignored if deflection_use_cooldown is false.
+deflection_requires_blocking: true # Whether you're required to block with the held item. This means the item needs the 'blocks_attacks' component, like a shield.
 
 # Backstab
 backstab_damage: 3.0 # Bonus damage to be applied when attacking an entity facing away from you.

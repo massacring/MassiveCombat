@@ -6,10 +6,8 @@ import me.massacring.massiveCombat.MassiveCombat;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -27,6 +25,7 @@ public class DeflectionEvents implements Listener {
     private final Sound sound;
     private final boolean useCooldown;
     private final int cooldownTicks;
+    private final boolean requiresBlocking;
 
     public DeflectionEvents(MassiveCombat plugin) {
         this.plugin = plugin;
@@ -45,6 +44,7 @@ public class DeflectionEvents implements Listener {
 
         this.useCooldown = config.getBoolean("deflection_use_cooldown");
         this.cooldownTicks = config.getInt("deflection_cooldown");
+        this.requiresBlocking = config.getBoolean("deflection_requires_blocking");
     }
 
     private boolean canDeflect(ItemStack item) {
@@ -62,37 +62,6 @@ public class DeflectionEvents implements Listener {
             }
         }
         return tagsMatch;
-    }
-
-    @EventHandler
-    public void deflectArrow(EntityDamageByEntityEvent event) {
-        if (event.isCancelled()) return;
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (!player.hasPermission("massivecombat.ability.starter.deflect")) return;
-        if (player.isBlocking()) return;
-        if (!(event.getDamager() instanceof Projectile projectile)) return;
-        player.sendMessage("Proj Class: " + projectile.getClass().getName());
-
-        if (!deflectCheck(player, projectile.getLocation().getDirection().normalize())) return;
-
-        player.sendMessage("boop");
-
-        deflectAesthetics(player);
-
-        // Reverse the arrow's direction.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                projectile.setVelocity(player.getEyeLocation().getDirection().multiply(power));
-            }
-        }.runTaskLater(this.plugin, 1);
-
-        event.setCancelled(true);
-
-        // set deflection cooldown tag
-        long cooldownTime = System.currentTimeMillis() + (this.useCooldown ? (this.cooldownTicks * 50L) : 0);
-        PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"), PersistentDataType.LONG, cooldownTime);
     }
 
     @EventHandler
@@ -131,6 +100,7 @@ public class DeflectionEvents implements Listener {
             if (!canDeflect(item)) return false;
         }
 
+        if (requiresBlocking && !player.isBlocking()) return false;
 
         // Check if the player is on cooldown
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
