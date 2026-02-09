@@ -49,15 +49,16 @@ public class SkillTree extends SubCommand {
                 return true;
             }
             AtomicInteger level = new AtomicInteger(Integer.parseInt(args[4]));
+            level.set(Math.max(level.get(), 0));
 
             playerData.getNodeStates().keySet().forEach(node -> {
                 if (!node.getId().equalsIgnoreCase(args[2])) return;
 
                 switch (operation) {
                     case "add":
-                        level.set(Math.max(playerData.getNodeLevel(node) + level.get(), node.getMaxLevel()));
+                        level.set(Math.min(playerData.getNodeLevel(node) + level.get(), node.getMaxLevel()));
                     case "set":
-                        level.set(Math.max(level.get(), node.getMaxLevel()));
+                        level.set(Math.min(level.get(), node.getMaxLevel()));
                 }
                 playerData.setNodeLevel(node, level.get());
                 playerData.setNodeState(node, NodeState.UNLOCKED);
