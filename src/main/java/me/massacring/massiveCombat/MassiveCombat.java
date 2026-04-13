@@ -75,7 +75,7 @@ public final class MassiveCombat extends JavaPlugin {
 
             if (getServer().getPluginManager().isPluginEnabled("MMOCore") &&
                     getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-                addonStream = Stream.concat(addonStream, Stream.of(new MMOCoreWMEvents()));
+                addonStream = Stream.concat(addonStream, Stream.of(new MMOCoreWMEvents(this)));
             }
 
             if (config.getBoolean("deflection_weapon_mechanics")) {
