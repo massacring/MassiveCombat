@@ -4,15 +4,18 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.damage.WeaponDamageType;
-import me.deecaad.weaponmechanics.weapon.weaponevents.PrepareWeaponShootEvent;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
+import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
+import me.deecaad.weaponmechanics.weapon.weaponevents.*;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.massacring.massiveCombat.MassiveCombat;
+import me.massacring.massiveCombat.files.CustomConfig;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,30 +23,42 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MMOCoreWMEvents implements Listener {
     private final MassiveCombat plugin;
+    private final FileConfiguration weaponGroups;
 
     public MMOCoreWMEvents(MassiveCombat plugin) {
         this.plugin = plugin;
+        weaponGroups = CustomConfig.getFile(plugin, "weapon_groups.yml");
     }
 
     @EventHandler
-    public void weaponDamageEvent(WeaponDamageEntityEvent event) {
+    public void blasterDamageEvent(WeaponDamageEntityEvent event) {
         if (!(event.getSource().getShooter() instanceof Player player)) return;
         WeaponDamageType damageType = event.getSource().getDamageType();
-        String accuracy_placeholder = "";
-        String flat_damage_placeholder = "";
-        String percent_damage_placeholder = "";
-        if (damageType == WeaponDamageType.PROJECTILE) {
-            accuracy_placeholder = "%mmocore_stat_BLASTER_ACCURACY%";
-            flat_damage_placeholder = "%mmocore_stat_BLASTER_FLAT_DMG%";
-            percent_damage_placeholder = "%mmocore_stat_BLASTER_PERCENT_DMG%";
-        } else if (damageType == WeaponDamageType.EXPLOSION) {
-            accuracy_placeholder = "%mmocore_stat_EXPLOSIVE_ACCURACY%";
-            flat_damage_placeholder = "%mmocore_stat_EXPLOSIVE_FLAT_DMG%";
-            percent_damage_placeholder = "%mmocore_stat_EXPLOSIVE_PERCENT_DMG%";
+        if (damageType != WeaponDamageType.PROJECTILE) return;
+
+        ConfigurationSection blasterSection = weaponGroups.getConfigurationSection("Blasters");
+        if (blasterSection == null) return;
+
+        boolean isGrouped = false;
+        String weaponID = event.getWeaponTitle();
+        for (String key : blasterSection.getKeys(false)) {
+            List<String> blasters = blasterSection.getStringList(key);
+            if (blasters.contains(weaponID)) {
+                isGrouped = true;
+                break;
+            }
         }
+        if (!isGrouped) return;
+
+        String accuracy_placeholder = "%mmocore_stat_BLASTER_ACCURACY%";
+        String flat_damage_placeholder = "%mmocore_stat_BLASTER_FLAT_DMG%";
+        String percent_damage_placeholder = "%mmocore_stat_BLASTER_PERCENT_DMG%";
 
         double baseDamage = event.getBaseDamage();
         double newDamage = damageEvent(baseDamage, player, accuracy_placeholder, flat_damage_placeholder, percent_damage_placeholder);
@@ -70,6 +85,40 @@ public class MMOCoreWMEvents implements Listener {
                     PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_FAR_DMG%")
             );
             newDamage *= (damage/100 + 1);
+        }
+
+        event.setBaseDamage(Math.max(newDamage, 0));
+    }
+
+    @EventHandler
+    public void explosiveDamageEvent(WeaponDamageEntityEvent event) {
+        if (!(event.getSource().getShooter() instanceof Player player)) return;
+        WeaponDamageType damageType = event.getSource().getDamageType();
+        if (damageType != WeaponDamageType.EXPLOSION) return;
+
+        ConfigurationSection blasterSection = weaponGroups.getConfigurationSection("Explosives");
+        if (blasterSection == null) return;
+
+        boolean isGrouped = false;
+        String weaponID = event.getWeaponTitle();
+        for (String key : blasterSection.getKeys(false)) {
+            List<String> blasters = blasterSection.getStringList(key);
+            if (blasters.contains(weaponID)) {
+                isGrouped = true;
+                break;
+            }
+        }
+        if (!isGrouped) return;
+
+        String accuracy_placeholder = "%mmocore_stat_EXPLOSIVE_ACCURACY%";
+        String flat_damage_placeholder = "%mmocore_stat_EXPLOSIVE_FLAT_DMG%";
+        String percent_damage_placeholder = "%mmocore_stat_EXPLOSIVE_PERCENT_DMG%";
+
+        double baseDamage = event.getBaseDamage();
+        double newDamage = damageEvent(baseDamage, player, accuracy_placeholder, flat_damage_placeholder, percent_damage_placeholder);
+        if (baseDamage == newDamage) {
+            event.setCancelled(true);
+            return;
         }
 
         event.setBaseDamage(Math.max(newDamage, 0));
@@ -133,6 +182,44 @@ public class MMOCoreWMEvents implements Listener {
     }
 
     @EventHandler
+    public void explosionEvent(ProjectilePreExplodeEvent event) {
+        Explosion oldExplosion = event.getExplosion();
+        if (!(event.getShooter() instanceof Player player)) return;
+
+        double bonusRadius = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_EXPLOSIVE_RADIUS%")
+        );
+        bonusRadius /= 100;
+        bonusRadius += 1;
+
+        ExplosionShape oldShape = oldExplosion.getShape();
+        ExplosionShape newShape;
+        Map<String, String> shapeData = parseShape(oldShape);
+        switch (oldShape) {
+            case SphereExplosion ignored -> {
+                double radius = Double.parseDouble(shapeData.get("radius"));
+                radius *= bonusRadius;
+                newShape = new SphereExplosion(radius);
+            }
+            case CubeExplosion ignored -> {
+                double width = Double.parseDouble(shapeData.get("width"));
+                double height = Double.parseDouble(shapeData.get("height"));
+                width *= bonusRadius;
+                height *= bonusRadius;
+                newShape = new CubeExplosion(width, height);
+            }
+            default -> {
+                return;
+            }
+        }
+
+        Explosion newExplosion = new Explosion(newShape, oldExplosion.getExposure(), oldExplosion.getBlockDamage(),
+                oldExplosion.getRegeneration(), oldExplosion.getDetonation(), oldExplosion.getBlockChance(), oldExplosion.getKnockbackRate(),
+                oldExplosion.getCluster(), oldExplosion.getAirStrike(), oldExplosion.getFlashbang(), oldExplosion.getMechanics());
+        event.setExplosion(newExplosion);
+    }
+
+    @EventHandler
     public void weaponReloadEvent(WeaponReloadEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         double blasterReload = Double.parseDouble(
@@ -187,16 +274,42 @@ public class MMOCoreWMEvents implements Listener {
         event.setRecoilPitch(newRecoilPitch);
     }
 
+    private Map<String, String> parseShape(ExplosionShape shape) {
+        Map<String, String> map = new HashMap<>();
+
+        String input = shape.toString();
+
+        int start = input.indexOf('{');
+        int end = input.indexOf('}');
+
+        if (start == -1 || end == -1 || start >= end) {
+            return map;
+        }
+
+        String content = input.substring(start + 1, end);
+        String[] pairs = content.split(",");
+
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=", 2);
+
+            if (keyValue.length == 2) {
+                map.put(keyValue[0].trim(), keyValue[1].trim());
+            }
+        }
+
+        return map;
+    }
+
     private void showMissTitle(Player player) {
         final Component actionBar = Component.text("Miss!", NamedTextColor.RED).decorate(TextDecoration.ITALIC);
-        final Title.Times times = Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(1000), Duration.ofMillis(500));
+        final Title.Times times = Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250));
         final Title title = Title.title(Component.empty(), actionBar, times);
         player.showTitle(title);
     }
 
     private void showControlFailTitle(Player player) {
         final Component actionBar = Component.text("Your fingers slipped.", NamedTextColor.RED).decorate(TextDecoration.ITALIC);
-        final Title.Times times = Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(1000), Duration.ofMillis(500));
+        final Title.Times times = Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250));
         final Title title = Title.title(Component.empty(), actionBar, times);
         player.showTitle(title);
     }

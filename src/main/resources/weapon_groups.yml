@@ -1,0 +1,18 @@
+## Groups WeaponMechanics weapons.
+## If a weapon is not defined here, it will not get affected by the general WM related MMOCore stats.
+## Expected values are WeaponMechanics weapon IDs, e.g. "AK_47".
+Explosives:
+  Rockets:
+    - Wrist_Rocket
+  Grenades:
+    - Shock Grenade
+  #- ...
+Blasters:
+  Pistols:
+    - DC17
+    - DL44
+    #- ...
+  Rifles:
+    - A280
+    - E11
+    #- ...

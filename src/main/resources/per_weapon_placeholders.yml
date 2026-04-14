@@ -1,0 +1,4 @@
+## Connects MMOCore Stats to specific WM weapons.
+## The key is the id of a MMOCore stat.
+## The value is a weapon ID, e.g. AK_47.
+## E.g: WRIST_ROCKET_SPEED: Wrist_Rocket
