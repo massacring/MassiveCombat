@@ -87,6 +87,8 @@ public class MMOCoreWMEvents implements Listener {
             newDamage *= (damage/100 + 1);
         }
 
+        newDamage = blasterDamageEvents(weaponID, newDamage, player, event.getPoint() == DamagePoint.HEAD);
+
         event.setBaseDamage(Math.max(newDamage, 0));
     }
 
@@ -153,8 +155,45 @@ public class MMOCoreWMEvents implements Listener {
             player.damage(newDamage * (controlEfficiency/100));
         }
 
-        plugin.getLogger().info(String.valueOf(newDamage));
         event.setDamage(newDamage);
+    }
+
+    private double blasterDamageEvents(String weaponID, double baseDamage, Player player, boolean headshot) {
+        ConfigurationSection blasterSection = weaponGroups.getConfigurationSection("Blasters");
+        if (blasterSection == null) return baseDamage;
+
+        try {
+            for (String key : blasterSection.getKeys(false)) {
+                List<String> blasters = blasterSection.getStringList(key);
+                if (blasters.contains(weaponID)) {
+                    String flat_damage_placeholder = "%" + String.format("mmocore_stat_BLASTER_%s_FLAT_DMG", key.toUpperCase()) + "%";
+                    String percent_damage_placeholder = "%" + String.format("mmocore_stat_%s_PERCENT_DMG", key.toUpperCase()) + "%";
+
+                    double flatDamage = Double.parseDouble(
+                            PlaceholderAPI.setPlaceholders(player, flat_damage_placeholder)
+                    );
+                    double damagePercent = Double.parseDouble(
+                            PlaceholderAPI.setPlaceholders(player, percent_damage_placeholder)
+                    );
+
+                    double newDamage = baseDamage + flatDamage;
+                    newDamage += baseDamage * (damagePercent/100);
+
+                    if (headshot) {
+                        double headshotDamage = Double.parseDouble(
+                                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_HEADSHOT_DMG%")
+                        );
+                        newDamage *= (headshotDamage/100 + 1);
+                    }
+
+                    return newDamage;
+                }
+            }
+        } catch (Exception e) {
+            return baseDamage;
+        }
+
+        return baseDamage;
     }
 
     private double damageEvent(double baseDamage, Player player, String accuracy_placeholder, String flat_damage_placeholder, String percent_damage_placeholder) {
@@ -220,22 +259,43 @@ public class MMOCoreWMEvents implements Listener {
     }
 
     @EventHandler
-    public void weaponReloadEvent(WeaponReloadEvent event) {
+    public void blasterReloadEvent(WeaponReloadEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
+
+        ConfigurationSection blasterSection = weaponGroups.getConfigurationSection("Blasters");
+        if (blasterSection == null) return;
+
         double blasterReload = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_FLAT_RELOAD_RDC%")
+                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_RELOAD_RDC%")
         );
-        double blasterReloadPercent = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_PERCENT_RELOAD_RDC%")
-        );
-        double baseReload = event.getReloadTime() - blasterReload;
-        double newReload = baseReload - (baseReload * blasterReloadPercent/100);
+        double baseReload = event.getReloadTime();
+        double newReload = baseReload - (baseReload * blasterReload/100);
+
+        try {
+            String weaponID = event.getWeaponTitle();
+            for (String key : blasterSection.getKeys(false)) {
+                List<String> blasters = blasterSection.getStringList(key);
+                if (blasters.contains(weaponID)) {
+                    String reload_rdc_placeholder = "%" + String.format("mmocore_stat_BLASTER_%s_RELOAD_RDC", key.toUpperCase()) + "%";
+
+                    double weaponReload = Double.parseDouble(
+                            PlaceholderAPI.setPlaceholders(player, reload_rdc_placeholder)
+                    );
+
+                    newReload = newReload - (newReload * weaponReload/100);
+                }
+            }
+        } catch (Exception ignored) {}
+
         event.setReloadTime((int) Math.max(newReload, 0));
     }
 
     @EventHandler
-    public void weaponShootEvent(PrepareWeaponShootEvent event) {
+    public void blasterShootEvent(PrepareWeaponShootEvent event) {
         if (!(event.getShooter() instanceof Player player)) return;
+
+        ConfigurationSection blasterSection = weaponGroups.getConfigurationSection("Blasters");
+        if (blasterSection == null) return;
 
         double baseSpread = event.getBaseSpread();
 
@@ -244,23 +304,56 @@ public class MMOCoreWMEvents implements Listener {
         if (playerWrapper != null) {
             if (playerWrapper.isInMidair()) {
                 double blasterSpreadMid = Double.parseDouble(
-                        PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_PERCENT_SPREAD_MID%")
+                        PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_SPREAD_MID%")
                 );
                 newSpread *= blasterSpreadMid / 100;
             }
             if (playerWrapper.isZooming()) {
                 double blasterSpreadScoped = Double.parseDouble(
-                        PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_PERCENT_SPREAD_SCOPED%")
+                        PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_SPREAD_SCOPED%")
                 );
                 newSpread *= blasterSpreadScoped / 100;
             }
             else {
                 double blasterSpreadHip = Double.parseDouble(
-                        PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_PERCENT_SPREAD_HIP%")
+                        PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_SPREAD_HIP%")
                 );
                 newSpread *= blasterSpreadHip / 100;
             }
         }
+
+        try {
+            String weaponID = event.getWeaponTitle();
+            for (String key : blasterSection.getKeys(false)) {
+                List<String> blasters = blasterSection.getStringList(key);
+                if (blasters.contains(weaponID)) {
+                    if (playerWrapper != null) {
+                        if (playerWrapper.isInMidair()) {
+                            String spread_mid_placeholder = "%" + String.format("mmocore_stat_BLASTER_%s_RELOAD_RDC", key.toUpperCase()) + "%";
+                            double blasterSpreadMid = Double.parseDouble(
+                                    PlaceholderAPI.setPlaceholders(player, spread_mid_placeholder)
+                            );
+                            newSpread *= blasterSpreadMid / 100;
+                        }
+                        if (playerWrapper.isZooming()) {
+                            String spread_scoped_placeholder = "%" + String.format("mmocore_stat_BLASTER_%s_SPREAD_SCOPED", key.toUpperCase()) + "%";
+                            double blasterSpreadScoped = Double.parseDouble(
+                                    PlaceholderAPI.setPlaceholders(player, spread_scoped_placeholder)
+                            );
+                            newSpread *= blasterSpreadScoped / 100;
+                        }
+                        else {
+                            String spread_hip_placeholder = "%" + String.format("mmocore_stat_BLASTER_%s_SPREAD_HIP", key.toUpperCase()) + "%";
+                            double blasterSpreadHip = Double.parseDouble(
+                                    PlaceholderAPI.setPlaceholders(player, spread_hip_placeholder)
+                            );
+                            newSpread *= blasterSpreadHip / 100;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
         event.setBaseSpread(Math.max(newSpread, 0));
 
         double blasterRecoil = Double.parseDouble(
@@ -270,6 +363,24 @@ public class MMOCoreWMEvents implements Listener {
         double baseRecoilPitch = event.getRecoilPitch();
         double newRecoilYaw = baseRecoilYaw * (blasterRecoil/100);
         double newRecoilPitch = baseRecoilPitch * (blasterRecoil/100);
+
+        try {
+            String weaponID = event.getWeaponTitle();
+            for (String key : blasterSection.getKeys(false)) {
+                List<String> blasters = blasterSection.getStringList(key);
+                if (blasters.contains(weaponID)) {
+                    String recoil_placeholder = "%" + String.format("mmocore_stat_BLASTER_%s_RECOIL", key.toUpperCase()) + "%";
+
+                    double weaponRecoil = Double.parseDouble(
+                            PlaceholderAPI.setPlaceholders(player, recoil_placeholder)
+                    );
+
+                    newRecoilYaw *= weaponRecoil/100;
+                    newRecoilPitch *= weaponRecoil/100;
+                }
+            }
+        } catch (Exception ignored) {}
+
         event.setRecoilYaw(newRecoilYaw);
         event.setRecoilPitch(newRecoilPitch);
     }
