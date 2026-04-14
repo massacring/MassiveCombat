@@ -13,9 +13,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.time.Duration;
 
@@ -37,40 +39,18 @@ public class MMOCoreWMEvents implements Listener {
             accuracy_placeholder = "%mmocore_stat_BLASTER_ACCURACY%";
             flat_damage_placeholder = "%mmocore_stat_BLASTER_FLAT_DMG%";
             percent_damage_placeholder = "%mmocore_stat_BLASTER_PERCENT_DMG%";
-        } else if (damageType == WeaponDamageType.MELEE) {
-            accuracy_placeholder = "%mmocore_stat_MELEE_ACCURACY%";
-            flat_damage_placeholder = "%mmocore_stat_MELEE_FLAT_DMG%";
-            percent_damage_placeholder = "%mmocore_stat_MELEE_PERCENT_DMG%";
-            plugin.getLogger().info("Melee attack.");
         } else if (damageType == WeaponDamageType.EXPLOSION) {
             accuracy_placeholder = "%mmocore_stat_EXPLOSIVE_ACCURACY%";
             flat_damage_placeholder = "%mmocore_stat_EXPLOSIVE_FLAT_DMG%";
             percent_damage_placeholder = "%mmocore_stat_EXPLOSIVE_PERCENT_DMG%";
         }
-        if (accuracy_placeholder.isEmpty())
-            return;
 
-        double accuracy = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, accuracy_placeholder)
-        );
-
-        boolean miss = Math.random() * 100 > accuracy;
-        if (miss) {
-            showMissTitle(player);
+        double baseDamage = event.getBaseDamage();
+        double newDamage = damageEvent(baseDamage, player, accuracy_placeholder, flat_damage_placeholder, percent_damage_placeholder);
+        if (baseDamage == newDamage) {
             event.setCancelled(true);
             return;
         }
-
-        double flatDamage = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, flat_damage_placeholder)
-        );
-        double damagePercent = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, percent_damage_placeholder)
-        );
-
-        double baseDamage = event.getBaseDamage();
-        double newDamage = baseDamage + flatDamage;
-        newDamage += baseDamage * (damagePercent/100);
 
         if (event.getPoint() == DamagePoint.HEAD) {
             double headshotDamage = Double.parseDouble(
@@ -92,21 +72,64 @@ public class MMOCoreWMEvents implements Listener {
             newDamage *= (damage/100 + 1);
         }
 
-        if (damageType == WeaponDamageType.MELEE) {
-            double control = Double.parseDouble(
-                    PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_MELEE_CONTROL%")
-            );
-            boolean control_fail = Math.random() * 100 > control;
-            if (control_fail) {
-                double controlEfficiency = Double.parseDouble(
-                        PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_MELEE_CONTROL_EFFICIENCY%")
-                );
-                showControlFailTitle(player);
-                player.damage(newDamage * (controlEfficiency/100));
-            }
+        event.setBaseDamage(Math.max(newDamage, 0));
+    }
+
+    @EventHandler
+    public void meleeDamageEvent(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player player)) return;
+        DamageType damageType = event.getDamageSource().getDamageType();
+        if (damageType != DamageType.PLAYER_ATTACK && damageType != DamageType.MACE_SMASH) return;
+
+        String accuracy_placeholder = "%mmocore_stat_MELEE_ACCURACY%";
+        String flat_damage_placeholder = "%mmocore_stat_MELEE_FLAT_DMG%";
+        String percent_damage_placeholder = "%mmocore_stat_MELEE_PERCENT_DMG%";
+
+        double baseDamage = event.getDamage();
+        double newDamage = damageEvent(baseDamage, player, accuracy_placeholder, flat_damage_placeholder, percent_damage_placeholder);
+        if (newDamage == baseDamage) {
+            event.setCancelled(true);
+            return;
         }
 
-        event.setBaseDamage(Math.max(newDamage, 0));
+        double control = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_MELEE_CONTROL%")
+        );
+        boolean control_fail = Math.random() * 100 > control;
+        if (control_fail) {
+            double controlEfficiency = Double.parseDouble(
+                    PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_MELEE_CONTROL_EFFICIENCY%")
+            );
+            showControlFailTitle(player);
+            player.damage(newDamage * (controlEfficiency/100));
+        }
+
+        plugin.getLogger().info(String.valueOf(newDamage));
+        event.setDamage(newDamage);
+    }
+
+    private double damageEvent(double baseDamage, Player player, String accuracy_placeholder, String flat_damage_placeholder, String percent_damage_placeholder) {
+        double accuracy = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, accuracy_placeholder)
+        );
+
+        boolean miss = Math.random() * 100 > accuracy;
+        if (miss) {
+            showMissTitle(player);
+            return baseDamage;
+        }
+
+        double flatDamage = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, flat_damage_placeholder)
+        );
+        double damagePercent = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, percent_damage_placeholder)
+        );
+
+        double newDamage = baseDamage + flatDamage;
+        newDamage += baseDamage * (damagePercent/100);
+
+        return newDamage;
     }
 
     @EventHandler
