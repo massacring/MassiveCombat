@@ -4,7 +4,6 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.damage.WeaponDamageType;
-import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
 import me.deecaad.weaponmechanics.weapon.weaponevents.*;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -23,9 +22,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MMOCoreWMEvents implements Listener {
     private final MassiveCombat plugin;
@@ -221,44 +218,6 @@ public class MMOCoreWMEvents implements Listener {
     }
 
     @EventHandler
-    public void explosionEvent(ProjectilePreExplodeEvent event) {
-        Explosion oldExplosion = event.getExplosion();
-        if (!(event.getShooter() instanceof Player player)) return;
-
-        double bonusRadius = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_EXPLOSIVE_RADIUS%")
-        );
-        bonusRadius /= 100;
-        bonusRadius += 1;
-
-        ExplosionShape oldShape = oldExplosion.getShape();
-        ExplosionShape newShape;
-        Map<String, String> shapeData = parseShape(oldShape);
-        switch (oldShape) {
-            case SphereExplosion ignored -> {
-                double radius = Double.parseDouble(shapeData.get("radius"));
-                radius *= bonusRadius;
-                newShape = new SphereExplosion(radius);
-            }
-            case CubeExplosion ignored -> {
-                double width = Double.parseDouble(shapeData.get("width"));
-                double height = Double.parseDouble(shapeData.get("height"));
-                width *= bonusRadius;
-                height *= bonusRadius;
-                newShape = new CubeExplosion(width, height);
-            }
-            default -> {
-                return;
-            }
-        }
-
-        Explosion newExplosion = new Explosion(newShape, oldExplosion.getExposure(), oldExplosion.getBlockDamage(),
-                oldExplosion.getRegeneration(), oldExplosion.getDetonation(), oldExplosion.getBlockChance(), oldExplosion.getKnockbackRate(),
-                oldExplosion.getCluster(), oldExplosion.getAirStrike(), oldExplosion.getFlashbang(), oldExplosion.getMechanics());
-        event.setExplosion(newExplosion);
-    }
-
-    @EventHandler
     public void blasterReloadEvent(WeaponReloadEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
 
@@ -383,32 +342,6 @@ public class MMOCoreWMEvents implements Listener {
 
         event.setRecoilYaw(newRecoilYaw);
         event.setRecoilPitch(newRecoilPitch);
-    }
-
-    private Map<String, String> parseShape(ExplosionShape shape) {
-        Map<String, String> map = new HashMap<>();
-
-        String input = shape.toString();
-
-        int start = input.indexOf('{');
-        int end = input.indexOf('}');
-
-        if (start == -1 || end == -1 || start >= end) {
-            return map;
-        }
-
-        String content = input.substring(start + 1, end);
-        String[] pairs = content.split(",");
-
-        for (String pair : pairs) {
-            String[] keyValue = pair.split("=", 2);
-
-            if (keyValue.length == 2) {
-                map.put(keyValue[0].trim(), keyValue[1].trim());
-            }
-        }
-
-        return map;
     }
 
     private void showMissTitle(Player player) {
