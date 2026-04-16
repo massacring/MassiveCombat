@@ -53,12 +53,12 @@ public class MMOCoreWMEvents implements Listener {
         }
         if (!isGrouped) return;
 
-        String accuracy_placeholder = "%mmocore_stat_BLASTER_ACCURACY%";
-        String flat_damage_placeholder = "%mmocore_stat_BLASTER_FLAT_DMG%";
-        String percent_damage_placeholder = "%mmocore_stat_BLASTER_PERCENT_DMG%";
+        String accuracyPlaceholder = "%mmocore_stat_BLASTER_ACCURACY%";
+        String flatDamagePlaceholder = "%mmocore_stat_BLASTER_FLAT_DMG%";
+        String percentDamagePlaceholder = "%mmocore_stat_BLASTER_PERCENT_DMG%";
 
         double baseDamage = event.getBaseDamage();
-        double newDamage = damageEvent(baseDamage, player, accuracy_placeholder, flat_damage_placeholder, percent_damage_placeholder);
+        double newDamage = damageEvent(baseDamage, player, accuracyPlaceholder, flatDamagePlaceholder, percentDamagePlaceholder);
         if (baseDamage == newDamage) {
             event.setCancelled(true);
             return;
@@ -84,9 +84,90 @@ public class MMOCoreWMEvents implements Listener {
             newDamage *= (damage/100 + 1);
         }
 
-        newDamage = blasterDamageEvents(weaponID, newDamage, player, event.getPoint() == DamagePoint.HEAD);
+        String armourPenPlaceholder = "%mmocore_stat_BLASTER_ARMOUR_PEN%";
+        String specificArmourPenPlaceholder = "";
+
+        String critChancePlaceholder = "%mmocore_stat_BLASTER_CRIT_CHANCE%";
+        String specificCritChancePlaceholder = "";
+
+        String critDamagePlaceholder = "%mmocore_stat_BLASTER_CRIT_DMG%";
+        String specificCritDamagePlaceholder = "";
+
+        try {
+            for (String key : blasterSection.getKeys(false)) {
+                List<String> blasters = blasterSection.getStringList(key);
+                if (blasters.contains(weaponID)) {
+                    String specificFlatDamagePlaceholder = "%" + String.format("mmocore_stat_BLASTER_%s_FLAT_DMG", key.toUpperCase()) + "%";
+                    String specificPercentDamagePlaceholder = "%" + String.format("mmocore_stat_BLASTER_%s_PERCENT_DMG", key.toUpperCase()) + "%";
+                    specificArmourPenPlaceholder = "%" + String.format("mmocore_stat_BLASTER_%s_ARMOUR_PEN", key.toUpperCase()) + "%";
+                    specificCritChancePlaceholder = "%" + String.format("mmocore_stat_BLASTER_%s_CRIT_CHANCE", key.toUpperCase()) + "%";
+                    specificCritDamagePlaceholder = "%" + String.format("mmocore_stat_BLASTER_%s_CRIT_DMG", key.toUpperCase()) + "%";
+
+                    double flatDamage = Double.parseDouble(
+                            PlaceholderAPI.setPlaceholders(player, specificFlatDamagePlaceholder)
+                    );
+                    double damagePercent = Double.parseDouble(
+                            PlaceholderAPI.setPlaceholders(player, specificPercentDamagePlaceholder)
+                    );
+
+                    newDamage = baseDamage + flatDamage;
+                    newDamage += baseDamage * (damagePercent/100);
+
+                    if (event.getPoint() == DamagePoint.HEAD) {
+                        double headshotDamage = Double.parseDouble(
+                                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_HEADSHOT_DMG%")
+                        );
+                        newDamage *= (headshotDamage/100 + 1);
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        double critChance = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, critChancePlaceholder)
+        );
+
+        double critDamage = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, critDamagePlaceholder)
+        );
+
+        double specificCritChance = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, specificCritChancePlaceholder)
+        );
+
+        double specificCritDamage = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, specificCritDamagePlaceholder)
+        );
+
+        double totalCritChance = (critChance/100) + (specificCritChance/100);
+        double totalCritDamage = (critDamage/100) + (specificCritDamage/100);
+
+        boolean crit = Math.random() * 100 < totalCritChance;
+        if (crit) {
+            newDamage *= totalCritDamage;
+        }
 
         event.setBaseDamage(Math.max(newDamage, 0));
+
+        double armourPen = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, armourPenPlaceholder)
+        );
+
+        double specificArmourPen = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, specificArmourPenPlaceholder)
+        );
+
+        double totalArmourPen = (armourPen + specificArmourPen) / 100;
+
+        double finalDamage = event.getFinalDamage();
+        double missingDamage = newDamage - finalDamage;
+
+        double penetratedDamage = missingDamage * totalArmourPen;
+
+        finalDamage += penetratedDamage;
+
+        event.setFinalDamage(finalDamage);
+
     }
 
     @EventHandler
@@ -120,7 +201,50 @@ public class MMOCoreWMEvents implements Listener {
             return;
         }
 
+        String armourPenPlaceholder = "%mmocore_stat_EXPLOSIVE_ARMOUR_PEN%";
+        String specificArmourPenPlaceholder = "";
+
+        try {
+            for (String key : blasterSection.getKeys(false)) {
+                List<String> blasters = blasterSection.getStringList(key);
+                if (blasters.contains(weaponID)) {
+                    String specificFlatDamagePlaceholder = "%" + String.format("mmocore_stat_EXPLOSIVE_%s_FLAT_DMG", key.toUpperCase()) + "%";
+                    String specificPercentDamagePlaceholder = "%" + String.format("mmocore_stat_EXPLOSIVE_%s_PERCENT_DMG", key.toUpperCase()) + "%";
+                    specificArmourPenPlaceholder = "%" + String.format("mmocore_stat_EXPLOSIVE_%s_ARMOUR_PEN", key.toUpperCase()) + "%";
+
+                    double flatDamage = Double.parseDouble(
+                            PlaceholderAPI.setPlaceholders(player, specificFlatDamagePlaceholder)
+                    );
+                    double damagePercent = Double.parseDouble(
+                            PlaceholderAPI.setPlaceholders(player, specificPercentDamagePlaceholder)
+                    );
+
+                    newDamage = baseDamage + flatDamage;
+                    newDamage += baseDamage * (damagePercent/100);
+                }
+            }
+        } catch (Exception ignored) {}
+
         event.setBaseDamage(Math.max(newDamage, 0));
+
+        double armourPen = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, armourPenPlaceholder)
+        );
+
+        double specificArmourPen = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, specificArmourPenPlaceholder)
+        );
+
+        double totalArmourPen = (armourPen + specificArmourPen) / 100;
+
+        double finalDamage = event.getFinalDamage();
+        double missingDamage = newDamage - finalDamage;
+
+        double penetratedDamage = missingDamage * totalArmourPen;
+
+        finalDamage += penetratedDamage;
+
+        event.setFinalDamage(finalDamage);
     }
 
     @EventHandler
@@ -135,7 +259,7 @@ public class MMOCoreWMEvents implements Listener {
 
         double baseDamage = event.getDamage();
         double newDamage = damageEvent(baseDamage, player, accuracy_placeholder, flat_damage_placeholder, percent_damage_placeholder);
-        if (newDamage == baseDamage) {
+        if (newDamage < 0) {
             event.setCancelled(true);
             return;
         }
@@ -155,44 +279,6 @@ public class MMOCoreWMEvents implements Listener {
         event.setDamage(newDamage);
     }
 
-    private double blasterDamageEvents(String weaponID, double baseDamage, Player player, boolean headshot) {
-        ConfigurationSection blasterSection = weaponGroups.getConfigurationSection("Blasters");
-        if (blasterSection == null) return baseDamage;
-
-        try {
-            for (String key : blasterSection.getKeys(false)) {
-                List<String> blasters = blasterSection.getStringList(key);
-                if (blasters.contains(weaponID)) {
-                    String flat_damage_placeholder = "%" + String.format("mmocore_stat_BLASTER_%s_FLAT_DMG", key.toUpperCase()) + "%";
-                    String percent_damage_placeholder = "%" + String.format("mmocore_stat_%s_PERCENT_DMG", key.toUpperCase()) + "%";
-
-                    double flatDamage = Double.parseDouble(
-                            PlaceholderAPI.setPlaceholders(player, flat_damage_placeholder)
-                    );
-                    double damagePercent = Double.parseDouble(
-                            PlaceholderAPI.setPlaceholders(player, percent_damage_placeholder)
-                    );
-
-                    double newDamage = baseDamage + flatDamage;
-                    newDamage += baseDamage * (damagePercent/100);
-
-                    if (headshot) {
-                        double headshotDamage = Double.parseDouble(
-                                PlaceholderAPI.setPlaceholders(player, "%mmocore_stat_BLASTER_HEADSHOT_DMG%")
-                        );
-                        newDamage *= (headshotDamage/100 + 1);
-                    }
-
-                    return newDamage;
-                }
-            }
-        } catch (Exception e) {
-            return baseDamage;
-        }
-
-        return baseDamage;
-    }
-
     private double damageEvent(double baseDamage, Player player, String accuracy_placeholder, String flat_damage_placeholder, String percent_damage_placeholder) {
         double accuracy = Double.parseDouble(
                 PlaceholderAPI.setPlaceholders(player, accuracy_placeholder)
@@ -201,7 +287,7 @@ public class MMOCoreWMEvents implements Listener {
         boolean miss = Math.random() * 100 > accuracy;
         if (miss) {
             showMissTitle(player);
-            return baseDamage;
+            return -1;
         }
 
         double flatDamage = Double.parseDouble(
