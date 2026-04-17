@@ -8,7 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 
-public record CallPlayerChangeHealthEvent(MassiveCombat plugin) implements Listener {
+public record CallPlayerChangeHealthEvent() implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerDamage(EntityDamageEvent event) {
@@ -16,7 +16,7 @@ public record CallPlayerChangeHealthEvent(MassiveCombat plugin) implements Liste
         if (!(event.getEntity() instanceof Player player)) return;
 
         PlayerChangeHealthEvent customEvent = new PlayerChangeHealthEvent(player, -(event.getFinalDamage()));
-        plugin.getServer().getPluginManager().callEvent(customEvent);
+        MassiveCombat.getInstance().getServer().getPluginManager().callEvent(customEvent);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -25,6 +25,6 @@ public record CallPlayerChangeHealthEvent(MassiveCombat plugin) implements Liste
         if (!(event.getEntity() instanceof Player player)) return;
 
         PlayerChangeHealthEvent customEvent = new PlayerChangeHealthEvent(player, event.getAmount());
-        plugin.getServer().getPluginManager().callEvent(customEvent);
+        MassiveCombat.getInstance().getServer().getPluginManager().callEvent(customEvent);
     }
 }

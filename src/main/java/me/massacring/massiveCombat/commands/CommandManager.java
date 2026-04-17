@@ -19,10 +19,10 @@ public class CommandManager implements CommandExecutor {
     private final HashMap<String, Callable<Boolean>> commands = new HashMap<>();
     private final HashMap<String, List<SubCommand>> subCommands = new HashMap<>();
 
-    public CommandManager(MassiveCombat plugin){
+    public CommandManager(){
         List<SubCommand> subCommandList = new ArrayList<>();
-        if (plugin.getServer().getPluginManager().isPluginEnabled("MMOCore")) {
-            subCommandList.add(new SkillTree(plugin, "combat", "skill-tree", "Lets you modify MMOCore skill-tree data."));
+        if (MassiveCombat.getInstance().getServer().getPluginManager().isPluginEnabled("MMOCore")) {
+            subCommandList.add(new SkillTree(MassiveCombat.getInstance(), "combat", "skill-tree", "Lets you modify MMOCore skill-tree data."));
         }
 
         addCommand("combat", () -> false, subCommandList);

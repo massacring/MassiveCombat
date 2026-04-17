@@ -11,16 +11,14 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 public class DoubleJumpListener implements Listener {
-    private final MassiveCombat plugin;
     private final double multiple;
     private final double setY;
     private final Sound sound;
     private final boolean useCooldown;
     private final int cooldownTicks;
 
-    public DoubleJumpListener(MassiveCombat plugin) {
-        this.plugin = plugin;
-        FileConfiguration config = this.plugin.getConfig();
+    public DoubleJumpListener() {
+        FileConfiguration config = MassiveCombat.getInstance().getConfig();
         this.multiple = config.getDouble("double_jump_multiple");
         this.setY = config.getDouble("double_jump_setY");
 
@@ -46,7 +44,7 @@ public class DoubleJumpListener implements Listener {
         if (!player.hasPermission("massivecombat.ability.starter.double_jump")) return;
 
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        if (playerNBT.has(new NamespacedKey(plugin, "massivecombat.double_jump.cooldown"))) return;
+        if (playerNBT.has(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.double_jump.cooldown"))) return;
 
         event.setCancelled(true);
         player.setAllowFlight(false);
@@ -59,6 +57,6 @@ public class DoubleJumpListener implements Listener {
 
         // set double jump cooldown tag
         long cooldownTime = System.currentTimeMillis() + (this.useCooldown ? (this.cooldownTicks * 50L) : 0);
-        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.double_jump.cooldown"), PersistentDataType.LONG, cooldownTime);
+        playerNBT.set(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.double_jump.cooldown"), PersistentDataType.LONG, cooldownTime);
     }
 }

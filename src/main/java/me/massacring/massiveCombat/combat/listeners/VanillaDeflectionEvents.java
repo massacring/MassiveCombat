@@ -17,7 +17,6 @@ import java.util.List;
 import static me.massacring.massiveCombat.combat.Deflection.*;
 
 public class VanillaDeflectionEvents implements Listener {
-    private final MassiveCombat plugin;
     private final List<String> whitelistTags;
     private final double minimumAngle;
     private final int power;
@@ -26,9 +25,8 @@ public class VanillaDeflectionEvents implements Listener {
     private final int cooldownTicks;
     private final boolean requiresBlocking;
 
-    public VanillaDeflectionEvents(MassiveCombat plugin) {
-        this.plugin = plugin;
-        FileConfiguration config = this.plugin.getConfig();
+    public VanillaDeflectionEvents() {
+        FileConfiguration config = MassiveCombat.getInstance().getConfig();
         this.whitelistTags = config.getStringList("deflection_whitelist_tags");
         this.minimumAngle = config.getDouble("deflection_minimum_angle");
         this.power = config.getInt("deflection_power");
@@ -54,7 +52,7 @@ public class VanillaDeflectionEvents implements Listener {
         if (player.isBlocking()) return;
         Projectile projectile = event.getEntity();
 
-        if (!deflectCheck(this.plugin, player, projectile.getLocation().getDirection().normalize(), this.whitelistTags, this.minimumAngle, this.requiresBlocking)) return;
+        if (!deflectCheck(MassiveCombat.getInstance(), player, projectile.getLocation().getDirection().normalize(), this.whitelistTags, this.minimumAngle, this.requiresBlocking)) return;
 
         deflectAesthetics(player, this.sound);
 
@@ -64,13 +62,13 @@ public class VanillaDeflectionEvents implements Listener {
             public void run() {
                 projectile.setVelocity(player.getEyeLocation().getDirection().multiply(power));
             }
-        }.runTaskLater(this.plugin, 1);
+        }.runTaskLater(MassiveCombat.getInstance(), 1);
 
         event.setCancelled(true);
 
         // set deflection cooldown tag
         long cooldownTime = System.currentTimeMillis() + (this.useCooldown ? (this.cooldownTicks * 50L) : 0);
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.deflect.cooldown"), PersistentDataType.LONG, cooldownTime);
+        playerNBT.set(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.deflect.cooldown"), PersistentDataType.LONG, cooldownTime);
     }
 }

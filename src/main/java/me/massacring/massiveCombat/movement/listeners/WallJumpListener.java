@@ -11,7 +11,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 public class WallJumpListener implements Listener {
-    private final MassiveCombat plugin;
     private final double multiple;
     private final double setY;
     private final Sound sound;
@@ -19,9 +18,8 @@ public class WallJumpListener implements Listener {
     private final int cooldownTicks;
     private final int num_of_jumps;
 
-    public WallJumpListener(MassiveCombat plugin) {
-        this.plugin = plugin;
-        FileConfiguration config = this.plugin.getConfig();
+    public WallJumpListener() {
+        FileConfiguration config = MassiveCombat.getInstance().getConfig();
         this.multiple = config.getDouble("wall_jump_multiple");
         this.setY = config.getDouble("wall_jump_setY");
 
@@ -48,8 +46,8 @@ public class WallJumpListener implements Listener {
         if (!player.hasPermission("massivecombat.ability.starter.wall_jump")) return;
 
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        if (!playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.double_jump.cooldown"))) return;
-        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.wall_jump.cooldown"))) return;
+        if (!playerNBT.has(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.double_jump.cooldown"))) return;
+        if (playerNBT.has(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.wall_jump.cooldown"))) return;
 
         event.setCancelled(true);
         player.setAllowFlight(false);
@@ -62,15 +60,15 @@ public class WallJumpListener implements Listener {
         player.getWorld().spawnParticle(Particle.LARGE_SMOKE, player.getLocation(), 10, 0.5, 0, 0.5, 0.03);
 
         // Update last coords
-        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.wall_jump.last_coords"), PersistentDataType.INTEGER_ARRAY, new int[] {location.getBlockX(), location.getBlockZ()});
+        playerNBT.set(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.wall_jump.last_coords"), PersistentDataType.INTEGER_ARRAY, new int[] {location.getBlockX(), location.getBlockZ()});
 
         // Decrease jump count
-        Integer jumps = playerNBT.get(new NamespacedKey(this.plugin, "massivecombat.wall_jump.jumps"), PersistentDataType.INTEGER);
+        Integer jumps = playerNBT.get(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.wall_jump.jumps"), PersistentDataType.INTEGER);
         if (jumps == null) jumps = this.num_of_jumps;
-        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.wall_jump.jumps"), PersistentDataType.INTEGER, jumps-1);
+        playerNBT.set(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.wall_jump.jumps"), PersistentDataType.INTEGER, jumps-1);
 
         // set wall jump cooldown tag
         long cooldownTime = System.currentTimeMillis() + (this.useCooldown ? (this.cooldownTicks * 50L) : 0);
-        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.wall_jump.cooldown"), PersistentDataType.LONG, cooldownTime);
+        playerNBT.set(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.wall_jump.cooldown"), PersistentDataType.LONG, cooldownTime);
     }
 }

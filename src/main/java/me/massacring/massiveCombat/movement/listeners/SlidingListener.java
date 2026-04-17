@@ -14,16 +14,14 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class SlidingListener implements Listener {
-    private final MassiveCombat plugin;
     private final double multiple;
     private final Sound sound;
     private final boolean useCooldown;
     private final int cooldownTicks;
     private final int crawlDuration;
 
-    public SlidingListener(MassiveCombat plugin) {
-        this.plugin = plugin;
-        FileConfiguration config = this.plugin.getConfig();
+    public SlidingListener() {
+        FileConfiguration config = MassiveCombat.getInstance().getConfig();
         this.multiple = config.getDouble("slide_multiple");
 
         String soundStr = config.getString("slide_sound");
@@ -51,17 +49,17 @@ public class SlidingListener implements Listener {
         boolean onGround = (!player.isFlying() && player.getLocation().subtract(0, 0.1, 0).getBlock().getType() != Material.AIR);
         if (!onGround) return;
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.slide.busy"))) return;
+        if (playerNBT.has(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.busy"))) return;
 
         // return if sliding is on cooldown
-        Long cooldown = playerNBT.get(new NamespacedKey(this.plugin, "massivecombat.slide.cooldown"), PersistentDataType.LONG);
+        Long cooldown = playerNBT.get(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.cooldown"), PersistentDataType.LONG);
         if (cooldown != null && System.currentTimeMillis() < cooldown) return;
 
         slide(player);
 
         // set wall jump cooldown tag
         long cooldownTime = System.currentTimeMillis() + (this.useCooldown ? (this.cooldownTicks * 50L) : 0);
-        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.slide.cooldown"), PersistentDataType.LONG, cooldownTime);
+        playerNBT.set(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.cooldown"), PersistentDataType.LONG, cooldownTime);
     }
 
     @EventHandler
@@ -70,7 +68,7 @@ public class SlidingListener implements Listener {
         if (!event.isSneaking()) return;
         Player player = event.getPlayer();
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.slide.busy"))) event.setCancelled(true);
+        if (playerNBT.has(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.busy"))) event.setCancelled(true);
     }
 
     @EventHandler
@@ -78,7 +76,7 @@ public class SlidingListener implements Listener {
         if (event.isCancelled()) return;
         if (!(event.getEntity() instanceof Player player)) return;
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.slide.busy"))) event.setCancelled(true);
+        if (playerNBT.has(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.busy"))) event.setCancelled(true);
     }
 
     @EventHandler
@@ -86,8 +84,8 @@ public class SlidingListener implements Listener {
         if (event.isCancelled()) return;
         Player player = event.getPlayer();
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        if (playerNBT.has(new NamespacedKey(this.plugin, "massivecombat.slide.busy")))
-            playerNBT.remove(new NamespacedKey(this.plugin, "massivecombat.slide.busy"));
+        if (playerNBT.has(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.busy")))
+            playerNBT.remove(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.busy"));
     }
 
     private void slide(Player player) {
@@ -99,7 +97,7 @@ public class SlidingListener implements Listener {
 
         player.setVelocity(player.getLocation().getDirection().multiply(multiple).setY(0));
         PersistentDataContainer playerNBT = player.getPersistentDataContainer();
-        playerNBT.set(new NamespacedKey(this.plugin, "massivecombat.slide.busy"), PersistentDataType.BOOLEAN, true);
+        playerNBT.set(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.busy"), PersistentDataType.BOOLEAN, true);
         player.getWorld().playSound(player.getLocation(), this.sound, SoundCategory.PLAYERS, 1, 1);
 
         new BukkitRunnable() {
@@ -107,8 +105,8 @@ public class SlidingListener implements Listener {
             @Override
             public void run() {
                 player.setFlySpeed(originalFlySpeed);
-                playerNBT.remove(new NamespacedKey(plugin, "massivecombat.slide.busy"));
+                playerNBT.remove(new NamespacedKey(MassiveCombat.getInstance(), "massivecombat.slide.busy"));
             }
-        }.runTaskLater(this.plugin, this.crawlDuration);
+        }.runTaskLater(MassiveCombat.getInstance(), this.crawlDuration);
     }
 }

@@ -8,7 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public record OnPlayerJoin(MassiveCombat plugin) implements Listener {
+public record OnPlayerJoin() implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -19,7 +19,7 @@ public record OnPlayerJoin(MassiveCombat plugin) implements Listener {
             safeFallDistanceAttribute.setBaseValue(safeFallDistanceAttribute.getDefaultValue());
             return;
         }
-        double safeFallDistance = this.plugin.getConfig().getDouble("safe_fall_distance");
+        double safeFallDistance = MassiveCombat.getInstance().getConfig().getDouble("safe_fall_distance");
         safeFallDistanceAttribute.setBaseValue(safeFallDistance);
     }
 }

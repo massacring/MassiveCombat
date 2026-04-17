@@ -25,12 +25,10 @@ import java.time.Duration;
 import java.util.List;
 
 public class MMOCoreWMEvents implements Listener {
-    private final MassiveCombat plugin;
     private final FileConfiguration weaponGroups;
 
-    public MMOCoreWMEvents(MassiveCombat plugin) {
-        this.plugin = plugin;
-        weaponGroups = CustomConfig.getFile(plugin, "weapon_groups.yml");
+    public MMOCoreWMEvents() {
+        weaponGroups = CustomConfig.getFile(MassiveCombat.getInstance(), "weapon_groups.yml");
     }
 
     @EventHandler
@@ -279,30 +277,6 @@ public class MMOCoreWMEvents implements Listener {
         event.setDamage(newDamage);
     }
 
-    private double damageEvent(double baseDamage, Player player, String accuracy_placeholder, String flat_damage_placeholder, String percent_damage_placeholder) {
-        double accuracy = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, accuracy_placeholder)
-        );
-
-        boolean miss = Math.random() * 100 > accuracy;
-        if (miss) {
-            showMissTitle(player);
-            return -1;
-        }
-
-        double flatDamage = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, flat_damage_placeholder)
-        );
-        double damagePercent = Double.parseDouble(
-                PlaceholderAPI.setPlaceholders(player, percent_damage_placeholder)
-        );
-
-        double newDamage = baseDamage + flatDamage;
-        newDamage += baseDamage * (damagePercent/100);
-
-        return newDamage;
-    }
-
     @EventHandler
     public void blasterReloadEvent(WeaponReloadEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
@@ -428,6 +402,30 @@ public class MMOCoreWMEvents implements Listener {
 
         event.setRecoilYaw(newRecoilYaw);
         event.setRecoilPitch(newRecoilPitch);
+    }
+
+    private double damageEvent(double baseDamage, Player player, String accuracy_placeholder, String flat_damage_placeholder, String percent_damage_placeholder) {
+        double accuracy = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, accuracy_placeholder)
+        );
+
+        boolean miss = Math.random() * 100 > accuracy;
+        if (miss) {
+            showMissTitle(player);
+            return -1;
+        }
+
+        double flatDamage = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, flat_damage_placeholder)
+        );
+        double damagePercent = Double.parseDouble(
+                PlaceholderAPI.setPlaceholders(player, percent_damage_placeholder)
+        );
+
+        double newDamage = baseDamage + flatDamage;
+        newDamage += baseDamage * (damagePercent/100);
+
+        return newDamage;
     }
 
     private void showMissTitle(Player player) {

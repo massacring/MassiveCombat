@@ -13,13 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomTabCompleter implements TabCompleter {
-
-    private final MassiveCombat plugin;
-
-    public CustomTabCompleter(MassiveCombat plugin) {
-        this.plugin = plugin;
-    }
-
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         List<String> empty = new ArrayList<>();
@@ -27,22 +20,22 @@ public class CustomTabCompleter implements TabCompleter {
         if (!player.hasPermission("massivecombat.command.admin")) return empty;
         if (!command.getName().equalsIgnoreCase("combat")) return empty;
 
-        boolean MMOCoreEnabled = plugin.getServer().getPluginManager().isPluginEnabled("MMOCore");
+        boolean MMOCoreEnabled = MassiveCombat.getInstance().getServer().getPluginManager().isPluginEnabled("MMOCore");
 
         switch (args.length) {
             case 1:
                 if (MMOCoreEnabled) return List.of("skill-tree");
             case 2:
                 if (MMOCoreEnabled && args[0].equals("skill-tree")) {
-                    return SkillTreeTabComplete.getTabComplete(plugin, args);
+                    return SkillTreeTabComplete.getTabComplete(MassiveCombat.getInstance(), args);
                 }
             case 3:
                 if (MMOCoreEnabled && args[0].equals("skill-tree")) {
-                    return SkillTreeTabComplete.getTabComplete(plugin, args);
+                    return SkillTreeTabComplete.getTabComplete(MassiveCombat.getInstance(), args);
                 }
             case 4:
                 if (MMOCoreEnabled && args[0].equals("skill-tree")) {
-                    return SkillTreeTabComplete.getTabComplete(plugin, args);
+                    return SkillTreeTabComplete.getTabComplete(MassiveCombat.getInstance(), args);
                 }
         }
 

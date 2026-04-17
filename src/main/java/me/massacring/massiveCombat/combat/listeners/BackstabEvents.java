@@ -16,8 +16,8 @@ public class BackstabEvents implements Listener {
     private final double minimumAngle;
     private final Sound sound;
 
-    public BackstabEvents(MassiveCombat plugin) {
-        FileConfiguration config = plugin.getConfig();
+    public BackstabEvents() {
+        FileConfiguration config = MassiveCombat.getInstance().getConfig();
         this.bonusDamage = config.getDouble("backstab_damage");
         this.minimumAngle = config.getDouble("backstab_angle");
 

@@ -21,12 +21,10 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class HealingItemsEvents implements Listener {
-    private final MassiveCombat plugin;
     private final HashMap<String, HealingItem> itemHash = new HashMap<>();
 
-    public HealingItemsEvents(MassiveCombat plugin) {
-        this.plugin = plugin;
-        FileConfiguration config = this.plugin.getConfig();
+    public HealingItemsEvents() {
+        FileConfiguration config = MassiveCombat.getInstance().getConfig();
 
         ConfigurationSection healingItemsSection = config.getConfigurationSection("healing_items");
         if (healingItemsSection == null) return;
@@ -54,7 +52,7 @@ public class HealingItemsEvents implements Listener {
         ItemStack item = event.getItem();
         ItemMeta itemMeta = item.getItemMeta();
         PersistentDataContainer itemNBT = itemMeta.getPersistentDataContainer();
-        if (!itemNBT.has(new NamespacedKey(this.plugin, "massive_healing_item")))
+        if (!itemNBT.has(new NamespacedKey(MassiveCombat.getInstance(), "massive_healing_item")))
             return;
         // Check if the player has permission
         Player player = event.getPlayer();
@@ -64,7 +62,7 @@ public class HealingItemsEvents implements Listener {
             return;
         }
         // Get the healing item from the tag.
-        String itemTag = itemNBT.get(new NamespacedKey(this.plugin, "massive_healing_item"), PersistentDataType.STRING);
+        String itemTag = itemNBT.get(new NamespacedKey(MassiveCombat.getInstance(), "massive_healing_item"), PersistentDataType.STRING);
         HealingItem healingItem = itemHash.get(itemTag);
         if (healingItem == null) return;
 

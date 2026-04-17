@@ -23,16 +23,14 @@ import java.util.Set;
 import java.util.UUID;
 
 public class HealthEffectsEvents implements Listener {
-    private final MassiveCombat plugin;
     private final HashMap<Integer, HashMap<String, ImmutablePair<Integer, Integer>>> lowHealthEffects = new HashMap<>();
     private final HashMap<UUID, LowHealthEffectTask> lowHealthEffectTasks = new HashMap<>();
     private final FileConfiguration config;
     private final int LHE_duration;
     private final int ticksPerDamage;
 
-    public HealthEffectsEvents(MassiveCombat plugin) {
-        this.plugin = plugin;
-        this.config = this.plugin.getConfig();
+    public HealthEffectsEvents() {
+        this.config = MassiveCombat.getInstance().getConfig();
         LHE_duration = this.config.getInt("LHE_duration");
         ticksPerDamage = this.config.getInt("slowness_ticks_per_block_fallen");
         loadDebuffs();
@@ -52,8 +50,8 @@ public class HealthEffectsEvents implements Listener {
         int newPlayerHealth = Math.abs((int)(player.getHealth() + event.getAmount()));
         if (!lowHealthEffects.containsKey(newPlayerHealth)) return;
 
-        LowHealthEffectTask task = new LowHealthEffectTask(lowHealthEffects.get(newPlayerHealth), player.getUniqueId(), plugin);
-        task.runTaskTimer(plugin, 0L, LHE_duration/2);
+        LowHealthEffectTask task = new LowHealthEffectTask(lowHealthEffects.get(newPlayerHealth), player.getUniqueId(), MassiveCombat.getInstance());
+        task.runTaskTimer(MassiveCombat.getInstance(), 0L, LHE_duration/2);
         lowHealthEffectTasks.put(uuid, task);
     }
 
@@ -125,7 +123,7 @@ public class HealthEffectsEvents implements Listener {
     @EventHandler
     public void onFallDamage(EntityDamageEvent event) {
         if (event.isCancelled()) return;
-        if (!this.plugin.getConfig().getBoolean("glass_ankles")) return;
+        if (!MassiveCombat.getInstance().getConfig().getBoolean("glass_ankles")) return;
         if (!(event.getEntity() instanceof Player player)) return;
         if (!player.hasPermission("massivecombat.glass_ankles")) return;
         if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
